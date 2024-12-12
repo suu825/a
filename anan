@@ -1226,7 +1226,7 @@ ServerTab:AddToggle({
 ServerTab:AddSlider({
     Name = "クレイジーラインV2、ライン量",
     Min = 0,
-    Max = 40,
+    Max = 2000,
     Color = Color3.fromRGB(255, 255, 255),
     ValueName = ".",
     Increment = 1,
