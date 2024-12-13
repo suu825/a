@@ -1059,10 +1059,10 @@ ServerTab:AddToggle({
                     if selectedlayer then -- プレイヤーが選ばれていることを確認
                         local playerCharacter = game.Players:FindFirstChild(selectedlayer) and game.Players[selectedlayer].Character
                         if playerCharacter then
-                            for i = 1, 30 do -- ユーザー定義の回数に応じてラインを送信
+                            for i = 1, aiueo_d do -- ユーザー定義の回数に応じてラインを送信
                                 game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
                                     playerCharacter:FindFirstChildOfClass("Part"), 
-                                    CFrame.new(math.random(-0, 10), math.random(-0, 0), math.random(-0, 0)) -- 定義された範囲内のランダムな座標
+                                    CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0)) -- 定義された範囲内のランダムな座標
                                 )
                             end
                         else
@@ -1081,6 +1081,18 @@ ServerTab:AddToggle({
     end
 })
 
+ServerTab:AddSlider({
+    Name = "選択したプレイヤーに当てる、ライン量",
+    Min = 1,
+    Max = 30,
+    Color = Color3.fromRGB(255, 255, 255),
+    ValueName = ".",
+    Increment = 1,
+    Default = 5 ,
+    Callback = function(value)
+        aiueo_d = value -- Update the variable with the slider value.
+    end
+})
 
 
 ServerTab:AddButton({
