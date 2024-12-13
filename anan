@@ -3321,6 +3321,16 @@ CharacterTab:AddButton({
     end
 })
 
+local ToggleActive = false  
+
+local Toggle = CharacterTab:AddToggle({
+    Name = "キャラクターのスピード",
+    Default = false,
+    Callback = function(state)
+        ToggleActive = state
+    end
+})
+
 CharacterTab:AddSlider({
     Name = "スピード",
     Min = 16,
@@ -3334,74 +3344,95 @@ CharacterTab:AddSlider({
 
         local Plrs = game:GetService("Players")
         local MyPlr = Plrs.LocalPlayer
-        local MyChar = MyPlr.Character
-
-        if MyChar then
-            local Hum = MyChar.Humanoid
-            Hum.Changed:connect(function()
-                Hum.WalkSpeed = HackedWalkSpeed
-            end)
-            Hum.WalkSpeed = HackedWalkSpeed
-        end
-
-        MyPlr.CharacterAdded:connect(function(Char)
-            MyChar = Char
-            repeat wait() until Char:FindFirstChild("Humanoid")
-            local Hum = Char.Humanoid
-            Hum.Changed:connect(function()
-                Hum.WalkSpeed = HackedWalkSpeed
-            end)
-            Hum.WalkSpeed = HackedWalkSpeed
-        end)
-    end
-})
-  
-
-
-CharacterTab:AddToggle({
-    Name = "ジャンプパワー",
-    Default = false,
-    Save = true,
-    Flag = "CrouchJumpPower",
-    Color = Color3.fromRGB(255, 255, 255),
-    Callback = function(enabled)
-        if enabled then
-            crouchJumpCoroutine = coroutine.create(function()
-                while true do
-                    pcall(function()
-                        if not playerCharacter.Humanoid then return end
-                        if playerCharacter.Humanoid.JumpPower == 12 then
-                            playerCharacter.Humanoid.JumpPower = crouchJumpPower
-                        end
-                    end)
-                    wait()
-                end
-            end)
-            coroutine.resume(crouchJumpCoroutine)
-        elseif crouchJumpCoroutine then
-            coroutine.close(crouchJumpCoroutine)
-            crouchJumpCoroutine = nil
-            if playerCharacter.Humanoid then
-                playerCharacter.Humanoid.JumpPower = 24
+        
+      
+        local function setWalkSpeed(Humanoid)
+            if ToggleActive then 
+                Humanoid.WalkSpeed = HackedWalkSpeed
             end
         end
+
+     
+        local function updateCharacter(Char)
+            local Humanoid = Char:WaitForChild("Humanoid")
+            setWalkSpeed(Humanoid)
+
+         
+            while true do
+                wait(0) 
+                if not ToggleActive then break end  
+                setWalkSpeed(Humanoid) 
+            end
+
+            Humanoid.Changed:connect(function()
+                setWalkSpeed(Humanoid)
+            end)
+        end
+
+     
+        if MyPlr.Character then
+            updateCharacter(MyPlr.Character)
+        end
+        
+        MyPlr.CharacterAdded:connect(updateCharacter)
+    end
+})
+
+
+local ToggleActiv = false  
+
+local Toggle = CharacterTab:AddToggle({
+    Name = "キャラクターのジャンプ",
+    Default = false,
+    Callback = function(state)
+        ToggleActiv = state
     end
 })
 
 CharacterTab:AddSlider({
-    Name = "セットジャンプパワー",
-    Min = 6,
-    Max = 1000,
-    Color = Color3.fromRGB(255, 255, 255),
-    ValueName = ".",
+    Name = "ジャンプ力",
+    Min = 16,
+    Max = 500,
+    Default = 50,
+    Color = Color3.fromRGB(122,122,122),
     Increment = 1,
-    Default = crouchJumpPower,
-    Save = true,
-    Flag = "SetCrouchJumpPower",
-    Callback = function(value)
-        crouchJumpPower = value
+    ValueName = "jumpPower",
+    Callback = function(jumpPower)
+        HackedJumpPower = jumpPower
+
+        local Plrs = game:GetService("Players")
+        local MyPlr = Plrs.LocalPlayer
+        
+        local function setJumpPower(Humanoid)
+            if ToggleActiv then 
+                Humanoid.JumpPower = HackedJumpPower
+            end
+        end
+
+        local function updateCharacter(Char)
+            local Humanoid = Char:WaitForChild("Humanoid")
+            setJumpPower(Humanoid)
+
+            while true do
+                wait(0) 
+                if not ToggleActiv then break end  
+                setJumpPower(Humanoid) 
+            end
+
+            Humanoid.Changed:connect(function()
+                setJumpPower(Humanoid)
+            end)
+        end
+
+        if MyPlr.Character then
+            updateCharacter(MyPlr.Character)
+        end
+        
+        MyPlr.CharacterAdded:connect(updateCharacter)
     end
 })
+
+
 
 CharacterTab:AddSlider({
     Name = "キャラクターの高さ",
@@ -9885,4 +9916,3 @@ FunTab:AddButton({
 
 OrionLib:MakeNotification({Name = "a", Content = "a", Image = "rbxassetid://4483345998", Time = 5})
 OrionLib:Init()
-
