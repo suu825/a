@@ -1013,6 +1013,73 @@ updatePlayerList()
 local randomSeed = Random.new()
 
 
+local Players = game:GetService("Players")
+local playerNames = {}
+
+for _, player in ipairs(Players:GetPlayers()) do
+    table.insert(playerNames, player.Name)
+end
+
+local selectedlayer
+
+local PlayerDropdown = ServerTab:AddDropdown({
+    Name = "プレイヤーを選ぶ",
+    Options = playerNames,
+    Callback = function(selected)
+        selectedlayer = selected
+    end
+})
+
+local function RefreshPlayerList()
+    playerNames = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    PlayerDropdown:Refresh(playerNames, true)
+end
+
+Players.PlayerAdded:Connect(function()
+    RefreshPlayerList()
+end)
+
+Players.PlayerRemoving:Connect(function()
+    RefreshPlayerList()
+end)
+
+
+ServerTab:AddToggle({
+    Name = "選択したプレイヤーに当てる", 
+    Default = false, 
+    Callback = function(LagServer1)
+        ragServer = LagServer1
+
+        if ragServer then            
+            coroutine.wrap(function()
+                while ragServer do
+                    if selectedlayer then -- プレイヤーが選ばれていることを確認
+                        local playerCharacter = game.Players:FindFirstChild(selectedlayer) and game.Players[selectedlayer].Character
+                        if playerCharacter then
+                            for i = 1, 30 do -- ユーザー定義の回数に応じてラインを送信
+                                game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
+                                    playerCharacter:FindFirstChildOfClass("Part"), 
+                                    CFrame.new(math.random(-0, 10), math.random(-0, 0), math.random(-0, 0)) -- 定義された範囲内のランダムな座標
+                                )
+                            end
+                        else
+                            warn("指定したプレイヤーのキャラクターが見つかりませんでした。")
+                        end
+                    else
+                        warn("プレイヤーがまだ選択されていません。")
+                    end
+
+                    wait(0.00000000001) -- 次のループまで待機
+                end
+            end)() 
+        else
+            -- トグルオフ時に必要に応じてクリーンアップロジックを記述できます。
+        end
+    end
+})
 
 
 
