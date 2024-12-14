@@ -957,7 +957,7 @@ OrionLib:MakeNotification({
 })
 
 local GrabTab = Window:MakeTab({Name = "掴む", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
-local freezeTab = Window:MakeTab({Name = "オブジェクト掴む", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
+local freezeTab = Window:MakeTab({Name = "無敵突破", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
 local GTab = Window:MakeTab({Name = "リンク", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
 local DefenseTab = Window:MakeTab({Name = "アンチ", Icon =  "rbxassetid://129017321982695", PremiumOnly = false})
 local BlobmanTab = Window:MakeTab({Name = "ブロブマン掴む", Icon =  "rbxassetid://88840235976282", PremiumOnly = false})
