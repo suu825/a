@@ -957,7 +957,7 @@ OrionLib:MakeNotification({
 })
 
 local GrabTab = Window:MakeTab({Name = "掴む", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
-local ObjectTab = Window:MakeTab({Name = "オブジェクト掴む", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
+local freezeTab = Window:MakeTab({Name = "オブジェクト掴む", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
 local GTab = Window:MakeTab({Name = "リンク", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
 local DefenseTab = Window:MakeTab({Name = "アンチ", Icon =  "rbxassetid://129017321982695", PremiumOnly = false})
 local BlobmanTab = Window:MakeTab({Name = "ブロブマン掴む", Icon =  "rbxassetid://88840235976282", PremiumOnly = false})
@@ -9974,123 +9974,140 @@ FunTab:AddButton({
     Name = "人形切断",
     Callback = cleanupConnections(connections)
 })
+local Players = game:GetService("Players")
+local playerNames = {}
 
-local blackHoleConnection
-local isBlackHoleActive = false
+for _, player in ipairs(Players:GetPlayers()) do
+    table.insert(playerNames, player.Name)
+end
 
-ObjectTab:AddToggle({
-    Name = "ブラックホール",
-    Default = false,
-    Callback = function(value)
-        isBlackHoleActive = value  -- The value parameter determines whether the toggle is enabled or not.
+local Bring
 
-        local Players = game:GetService("Players")
-        local RunService = game:GetService("RunService")
-        local LocalPlayer = Players.LocalPlayer
-        local Workspace = game:GetService("Workspace")
-
-        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
-        local Folder = Instance.new("Folder", Workspace)
-        local Part = Instance.new("Part", Folder)
-        local Attachment1 = Instance.new("Attachment", Part)
-
-        Part.Anchored = true
-        Part.CanCollide = false
-        Part.Transparency = 1
-
-        if not getgenv().Network then
-            getgenv().Network = {
-                BaseParts = {},
-                Velocity = Vector3.new(14.46262424, 14.46262424, 14.46262424)
-            }
-
-            Network.RetainPart = function(Part)
-                if typeof(Part) == "Instance" and Part:IsA("BasePart") and Part:IsDescendantOf(Workspace) then
-                    table.insert(Network.BaseParts, Part)
-                    Part.CustomPhysicalProperties = PhysicalProperties.new(0, 0, 0, 0, 0)
-                    Part.CanCollide = true
-                end
-            end
-
-            local function EnablePartControl()
-                LocalPlayer.ReplicationFocus = Workspace
-                RunService.Heartbeat:Connect(function()
-                    sethiddenproperty(LocalPlayer, "SimulationRadius", math.huge)
-                    for _, Part in pairs(Network.BaseParts) do
-                        if Part:IsDescendantOf(Workspace) then
-                            Part.Velocity = Network.Velocity
-                        end
-                    end
-                end)
-            end
-
-            EnablePartControl()
-        end
-
-        local function ForcePart(v)
-            if v:IsA("Part") and not v.Anchored and not v.Parent:FindFirstChild("Humanoid") and not v.Parent:FindFirstChild("Head") and v.Name ~= "Handle" then
-                for _, x in ipairs(v:GetChildren()) do
-                    if x:IsA("BodyAngularVelocity") or x:IsA("BodyForce") or x:IsA("BodyGyro") or x:IsA("BodyPosition") or x:IsA("BodyThrust") or x:IsA("BodyVelocity")or x:IsA("RocketPropulsion") then
-                        x:Destroy()
-                    end
-                end
-                
-                if v:FindFirstChild("Attachment") then v:FindFirstChild("Attachment"):Destroy() end
-                if v:FindFirstChild("AlignPosition") then v:FindFirstChild("AlignPosition"):Destroy() end
-                if v:FindFirstChild("Torque") then v:FindFirstChild("Torque"):Destroy() end
-                
-                v.CanCollide = false
-                
-                local Torque = Instance.new("Torque", v)
-                Torque.Torque = Vector3.new(0, 0, 0)
-
-                local AlignPosition = Instance.new("AlignPosition", v)
-                local Attachment2 = Instance.new("Attachment", v)
-
-                Torque.Attachment0 = Attachment2
-
-                AlignPosition.MaxForce = math.huge -- maximum force for aligning position 
-                AlignPosition.MaxVelocity = math.huge -- as high as possible velocity for aligning position 
-                AlignPosition.Responsiveness = 200 -- responsiveness of aligning position 
-
-                AlignPosition.Attachment0 = Attachment2 -- attach to itself for reference in alignment 
-                AlignPosition.Attachment1 = Attachment1 -- attach to our main attachment point 
-            end
-        end
-        
-        local function toggleBlackHole()
-            if isBlackHoleActive then 
-                for _, v in next, Workspace:GetDescendants() do 
-                    ForcePart(v) 
-                end 
-
-                blackHoleConnection = Workspace.DescendantAdded:Connect(function(v) 
-                    if isBlackHoleActive then 
-                        ForcePart(v) 
-                    end 
-                end)
-
-                spawn(function() 
-                    while isBlackHoleActive and RunService.RenderStepped:Wait() do 
-                        Attachment1.WorldCFrame = humanoidRootPart.CFrame 
-                    end 
-                end) 
-            else
-                -- Cleanup logic when black hole is turned off
-                if blackHoleConnection then
-                    blackHoleConnection:Disconnect()
-                    blackHoleConnection = nil
-                end
-                
-                -- Reset Transforms or any other necessary clean-up here.
-            end
-        end
-
-        toggleBlackHole()
+freezeTab:AddLabel("ブロブマンではありません")
+freezeTab:AddLabel("freezeの方からやらないと意味ありません")
+local PlayerDropdown = freezeTab:AddDropdown({
+    Name = "Bringしたいプレイヤーを選ぶ",
+    Options = playerNames,
+    Callback = function(selected)
+        Bring = selected  -- Store the selected player name
     end
-  })
+})
+
+local function RefreshPlayerList()
+    playerNames = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    PlayerDropdown:Refresh(playerNames, true)
+end
+
+Players.PlayerAdded:Connect(function()
+    RefreshPlayerList()
+end)
+
+Players.PlayerRemoving:Connect(function()
+    RefreshPlayerList()
+end)
+
+freezeTab:AddButton({
+    Name = "選択したプレイヤーをBring",
+    Callback = function()
+
+local Players = game:GetService("Players") -- Ensure to get the Players service
+local targetPlayer = Players:FindFirstChild(Bring)
+
+if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+    local localPlayer = Players.LocalPlayer
+    local localPosition = localPlayer.Character.HumanoidRootPart.Position
+    -- Get the direction the local player is facing
+    local lookVector = localPlayer.Character.HumanoidRootPart.CFrame.LookVector
+
+    -- Calculate the new position 2 meters in front of the local player
+    local targetPosition = localPosition + (lookVector * 5)
+
+    -- Move the target player's HumanoidRootPart to this new position
+    targetPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
+else
+    print("選択したプレイヤーが見つかりません。")
+end
+
+    end
+})
+
+
+
+local Players = game:GetService("Players")
+local playerNames = {}
+
+for _, player in ipairs(Players:GetPlayers()) do
+    table.insert(playerNames, player.Name)
+end
+
+local FreezeP
+
+freezeTab:AddLabel("選んだプレイヤーをfreezeさせたらBringを押してください")
+freezeTab:AddLabel("Bringしたら相手のブロブマンが来ると思います")
+freezeTab:AddLabel("姿は見えないと思うので一度freezeオフにしてすぐオンにするといいです")
+freezeTab:AddLabel("そして雪玉だして相手に当てるだけ")
+local PlayerDropdown = freezeTabTab:AddDropdown({
+    Name = "freezeさせたいプレイヤーを選ぶ",
+    Options = playerNames,
+    Callback = function(selected)
+        FreezeP = selected  -- Store the selected player name
+    end
+})
+
+local function RefreshPlayerList()
+    playerNames = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    PlayerDropdown:Refresh(playerNames, true)
+end
+
+Players.PlayerAdded:Connect(function()
+    RefreshPlayerList()
+end)
+
+Players.PlayerRemoving:Connect(function()
+    RefreshPlayerList()
+end)
+
+-- Function to freeze or unfreeze the selected player
+local isFrozen = false
+
+local function toggleFreezeSelectedPlayer()
+    if FreezeP then
+        local playerToFreeze = Players:FindFirstChild(FreezeP)
+        
+        if playerToFreeze and playerToFreeze.Character then
+            local character = playerToFreeze.Character
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.Anchored = not isFrozen  -- Toggle Anchored based on isFrozen state
+                end
+            end
+            
+            isFrozen = not isFrozen  -- Toggle the freeze state
+        else
+            print("Selected player does not have a character.")
+        end
+    else
+        print("No player selected.")
+    end
+end
+
+freezeTab:AddToggle({
+    Name = "選んだプレイヤーをfreeze",
+    Default = false,
+    Callback = function(toggleState)
+        if toggleState then
+            toggleFreezeSelectedPlayer()  -- Call the function to freeze the selected player
+        else
+            toggleFreezeSelectedPlayer()  -- Call the function to unfreeze the selected player
+        end
+    end
+})
 
 
 
