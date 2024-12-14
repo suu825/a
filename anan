@@ -1641,6 +1641,53 @@ GrabTab:AddToggle({
     end
 })
 
+DefenseTab:AddButton({
+    Name = "無敵オン",
+    Callback = function()
+
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local Character = LocalPlayer.Character
+local LeftArm = Character:FindFirstChild("Left Arm")
+local LeftLeg = Character:FindFirstChild("Left Leg")
+local RightArm = Character:FindFirstChild("Right Arm")
+local RightLeg = Character:FindFirstChild("Right Leg")
+local Head = Character:FindFirstChild("Head")
+local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+
+LeftArm.Anchored = true
+LeftLeg.Anchored = true
+RightArm.Anchored = true
+RightLeg.Anchored = true
+Head.Anchored = true
+HumanoidRootPart.Anchored = true
+
+
+
+
+    end
+})
+
+DefenseTab:AddButton({
+    Name = "無敵オフ",
+    Callback = function()
+
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local Character = LocalPlayer.Character
+local LeftArm = Character:FindFirstChild("Left Arm")
+local LeftLeg = Character:FindFirstChild("Left Leg")
+local RightArm = Character:FindFirstChild("Right Arm")
+local RightLeg = Character:FindFirstChild("Right Leg")
+local Head = Character:FindFirstChild("Head")
+local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+LeftArm.Anchored = false
+LeftLeg.Anchored = false
+RightArm.Anchored = false
+RightLeg.Anchored = false
+Head.Anchored = false
+HumanoidRootPart.Anchored = false
+    end
+})
+
 
 D_p = 0.000005
 
@@ -9857,14 +9904,14 @@ KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 
-PATab:AddLabel("ラグサーバータブ追加")
-PATab:AddLabel("クレイジーライン追加")
-PATab:AddLabel("ラグサーバー追加")
-PATab:AddLabel("ラグサーバーV2追加")
-PATab:AddLabel("サーバークラッシュタップ式追加")
-PATab:AddLabel("軽いラグサーバータップ式追加")
-PATab:AddLabel("クレイジーラインタップ式追加")
-PATab:AddLabel("名前変更")
+PATab:AddLabel("クレイジーラインV2追加")
+PATab:AddLabel("無敵突破追加")
+PATab:AddLabel("無敵追加")
+PATab:AddLabel("無敵オンを追加")
+PATab:AddLabel("無敵オフを追加")
+
+
+
 
 
 FunTab:AddSlider({
