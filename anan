@@ -10049,7 +10049,7 @@ freezeTab:AddLabel("選んだプレイヤーをfreezeさせたらBringを押し�
 freezeTab:AddLabel("Bringしたら相手のブロブマンが来ると思います")
 freezeTab:AddLabel("姿は見えないと思うので一度freezeオフにしてすぐオンにするといいです")
 freezeTab:AddLabel("そして雪玉だして相手に当てるだけ")
-local PlayerDropdown = freezeTabTab:AddDropdown({
+local PlayerDropdown = freezeTab:AddDropdown({
     Name = "freezeさせたいプレイヤーを選ぶ",
     Options = playerNames,
     Callback = function(selected)
