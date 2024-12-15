@@ -976,39 +976,6 @@ local PATab = Window:MakeTab({Name = "アップデートログ", Icon =  "rbxass
 _G.strength = 400
 
 
-local playerDropdown = BlobmanTab:AddDropdown({
-    Name = "プレイヤーを選択",
-    Default = nil,
-    Options = {}, -- プレイヤーリストを後で追加
-    Callback = function(playerName)
-        selectedPlayer = Players:FindFirstChild(playerName)
-        if selectedPlayer then
-            print("Selected player: " .. selectedPlayer.Name)
-        else
-            print("Player not found")
-        end
-    end
-})
-
-
--- プレイヤーリストを更新する関数
-local function updatePlayerList()
-    local playerNames = {}
-    local playerSet = {}
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= localPlayer and not playerSet[player.Name] then
-            table.insert(playerNames, player.Name)
-            playerSet[player.Name] = true
-        end
-    end
-    playerDropdown:Refresh(playerNames)
-end
-
-
--- プレイヤーが参加/退出したときにリストを更新
-Players.PlayerAdded:Connect(updatePlayerList)
-Players.PlayerRemoving:Connect(updatePlayerList)
-updatePlayerList()
 
 
 local randomSeed = Random.new()
@@ -1073,12 +1040,66 @@ ServerTab:AddToggle({
                         warn("プレイヤーがまだ選択されていません。")
                     end
 
-                    wait(0.00000000001) -- 次のループまで待機
+                    wait() -- 次のループまで待機
                 end
             end)() 
         else
             -- トグルオフ時に必要に応じてクリーンアップロジックを記述できます。
         end
+
+        if ragServer then            
+            coroutine.wrap(function()
+                while ragServer do
+                    if selectedlayer then -- プレイヤーが選ばれていることを確認
+                        local playerCharacter = game.Players:FindFirstChild(selectedlayer) and game.Players[selectedlayer].Character
+                        if playerCharacter then
+                            for i = 1, aiueo_d do -- ユーザー定義の回数に応じてラインを送信
+                                game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
+                                    playerCharacter:FindFirstChildOfClass("Part"), 
+                                    CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0)) -- 定義された範囲内のランダムな座標
+                                )
+                            end
+                        else
+                            warn("指定したプレイヤーのキャラクターが見つかりませんでした。")
+                        end
+                    else
+                        warn("プレイヤーがまだ選択されていません。")
+                    end
+
+                    wait() -- 次のループまで待機
+                end
+            end)() 
+        else
+            -- トグルオフ時に必要に応じてクリーンアップロジックを記述できます。
+        end
+
+        if ragServer then            
+            coroutine.wrap(function()
+                while ragServer do
+                    if selectedlayer then -- プレイヤーが選ばれていることを確認
+                        local playerCharacter = game.Players:FindFirstChild(selectedlayer) and game.Players[selectedlayer].Character
+                        if playerCharacter then
+                            for i = 1, aiueo_d do -- ユーザー定義の回数に応じてラインを送信
+                                game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
+                                    playerCharacter:FindFirstChildOfClass("Part"), 
+                                    CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0)) -- 定義された範囲内のランダムな座標
+                                )
+                            end
+                        else
+                            warn("指定したプレイヤーのキャラクターが見つかりませんでした。")
+                        end
+                    else
+                        warn("プレイヤーがまだ選択されていません。")
+                    end
+
+                    wait() -- 次のループまで待機
+                end
+            end)() 
+        else
+            -- トグルオフ時に必要に応じてクリーンアップロジックを記述できます。
+        end
+
+
     end
 })
 
@@ -1288,6 +1309,47 @@ ServerTab:AddToggle({
         else -- If toggle is "off"
             -- Optionally handle stopping logic here (cleanup or stopping any ongoing actions)
         end
+
+        if running then -- If toggle is "on"
+            coroutine.wrap(function() -- Create a new coroutine
+                while running do -- Execute loop while "running" is true
+                    for i = 1, Go_g do -- Loop from 1 to 5
+                        local players = game:GetService("Players"):GetPlayers() -- Get player list
+                        if #players > 0 then
+                            local randomPlayer = players[math.random(2, #players)] -- Select a random player
+                            game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
+                                randomPlayer.Character and randomPlayer.Character:FindFirstChild("HumanoidRootPart") or nil, -- Get player's HumanoidRootPart
+                                CFrame.new(0, 0, 0) -- Set static coordinate (changeable)
+                            )
+                        end
+                    end
+                    wait() -- Wait before next loop iteration
+                end
+            end)() -- Start coroutine
+        else -- If toggle is "off"
+            -- Optionally handle stopping logic here (cleanup or stopping any ongoing actions)
+        end
+
+        if running then -- If toggle is "on"
+            coroutine.wrap(function() -- Create a new coroutine
+                while running do -- Execute loop while "running" is true
+                    for i = 1, Go_g do -- Loop from 1 to 5
+                        local players = game:GetService("Players"):GetPlayers() -- Get player list
+                        if #players > 0 then
+                            local randomPlayer = players[math.random(2, #players)] -- Select a random player
+                            game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
+                                randomPlayer.Character and randomPlayer.Character:FindFirstChild("HumanoidRootPart") or nil, -- Get player's HumanoidRootPart
+                                CFrame.new(0, 0, 0) -- Set static coordinate (changeable)
+                            )
+                        end
+                    end
+                    wait() -- Wait before next loop iteration
+                end
+            end)() -- Start coroutine
+        else -- If toggle is "off"
+            -- Optionally handle stopping logic here (cleanup or stopping any ongoing actions)
+        end
+
     end
 })
 
@@ -1298,7 +1360,7 @@ ServerTab:AddToggle({
 ServerTab:AddSlider({
     Name = "クレイジーライン、ライン量",
     Min = 1,
-    Max = 35,
+    Max = 50,
     Color = Color3.fromRGB(255, 255, 255),
     ValueName = ".",
     Increment = 1,
@@ -1351,13 +1413,75 @@ ServerTab:AddToggle({
             end
             -- Optionally handle stopping logic here (cleanup or stopping any ongoing actions)
         end
+
+
+     if crazyLine then -- If toggle is "on"
+            connection = runService.Heartbeat:Connect(function(deltaTime) -- Using Heartbeat instead of a coroutine
+                for i = 1, CPU_p do -- Loop from 1 to CPU_p
+                    local players = playersService:GetPlayers() -- Get player list
+                    if #players > 1 then -- Check if there are other players
+                        local randomPlayer
+                        repeat
+                            randomPlayer = players[math.random(1, #players)] -- Select a random player from all available players
+                        until randomPlayer ~= playersService.LocalPlayer -- Ensure the random player is not the local player
+
+                        if randomPlayer and randomPlayer.Character then
+                            replicatedStorage.GrabEvents.CreateGrabLine:FireServer(
+                                randomPlayer.Character:FindFirstChild("Head"), -- Get player's Head part
+                                CFrame.new(0, 0, 0) -- Set static coordinate (changeable)
+                            )
+                        end
+                    end
+                end
+            end)
+
+        else -- If toggle is "off"
+            if connection then -- Stop updating when no longer running 
+                connection:Disconnect()
+                connection = nil -- Clean up the connection reference after disconnecting 
+            end
+            -- Optionally handle stopping logic here (cleanup or stopping any ongoing actions)
+        end
+
+
+
+     if crazyLine then -- If toggle is "on"
+            connection = runService.Heartbeat:Connect(function(deltaTime) -- Using Heartbeat instead of a coroutine
+                for i = 1, CPU_p do -- Loop from 1 to CPU_p
+                    local players = playersService:GetPlayers() -- Get player list
+                    if #players > 1 then -- Check if there are other players
+                        local randomPlayer
+                        repeat
+                            randomPlayer = players[math.random(1, #players)] -- Select a random player from all available players
+                        until randomPlayer ~= playersService.LocalPlayer -- Ensure the random player is not the local player
+
+                        if randomPlayer and randomPlayer.Character then
+                            replicatedStorage.GrabEvents.CreateGrabLine:FireServer(
+                                randomPlayer.Character:FindFirstChild("Head"), -- Get player's Head part
+                                CFrame.new(0, 0, 0) -- Set static coordinate (changeable)
+                            )
+                        end
+                    end
+                end
+            end)
+
+        else -- If toggle is "off"
+            if connection then -- Stop updating when no longer running 
+                connection:Disconnect()
+                connection = nil -- Clean up the connection reference after disconnecting 
+            end
+            -- Optionally handle stopping logic here (cleanup or stopping any ongoing actions)
+        end
+
+
+
     end
 })
 
 ServerTab:AddSlider({
     Name = "クレイジーラインV2、ライン量",
     Min = 0,
-    Max = 2000,
+    Max = 3500,
     Color = Color3.fromRGB(255, 255, 255),
     ValueName = ".",
     Increment = 1,
@@ -1383,7 +1507,7 @@ ServerTab:AddToggle({
                             CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0)) -- Random coordinates within a defined range
                         )
                     end
-                    wait(0.01)
+                    wait(0)
                 end
             end)() 
         else
@@ -2409,7 +2533,65 @@ DefenseTab:AddTextbox({
 	end	  
 })
 
+local blobalter = G_e
+local function blobGrabPlayer(player, blobman)
+    if blobalter == 1 then
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local args = {
+                [1] = blobman:FindFirstChild("LeftDetector"),
+                [2] = player.Character:FindFirstChild("HumanoidRootPart"),
+                [3] = blobman:FindFirstChild("LeftDetector"):FindFirstChild("LeftWeld")
+            }
+            blobman:WaitForChild("BlobmanSeatAndOwnerScript"):WaitForChild("CreatureGrab"):FireServer(unpack(args))
+            blobalter = A_p
+        end
+    else
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local args = {
+                [1] = blobman:FindFirstChild("RightDetector"),
+                [2] = player.Character:FindFirstChild("HumanoidRootPart"),
+                [3] = blobman:FindFirstChild("RightDetector"):FindFirstChild("RightWeld")
+            }
+            blobman:WaitForChild("BlobmanSeatAndOwnerScript"):WaitForChild("CreatureGrab"):FireServer(unpack(args))
+            blobalter = G_e
+        end
+    end
+end
 
+
+local playerDropdown = BlobmanTab:AddDropdown({
+    Name = "プレイヤーを選択",
+    Default = nil,
+    Options = {}, -- プレイヤーリストを後で追加
+    Callback = function(playerName)
+        selectedPlayer = Players:FindFirstChild(playerName)
+        if selectedPlayer then
+            print("Selected player: " .. selectedPlayer.Name)
+        else
+            print("Player not found")
+        end
+    end
+})
+
+
+-- プレイヤーリストを更新する関数
+local function updatePlayerList()
+    local playerNames = {}
+    local playerSet = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= localPlayer and not playerSet[player.Name] then
+            table.insert(playerNames, player.Name)
+            playerSet[player.Name] = true
+        end
+    end
+    playerDropdown:Refresh(playerNames)
+end
+
+
+-- プレイヤーが参加/退出したときにリストを更新
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
+updatePlayerList()
 
 
 
