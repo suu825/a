@@ -3801,6 +3801,15 @@ ExplosionTab:AddToggle({
        reloadMissile(enabled)
     end
 })
+　　
+
+ScriptTab:AddButton({
+        Name = "ALL？",
+        Callback = function()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldawg123/FTAP/refs/heads/main/crashing.lua",true))()
+         end    
+})
 
 
 ScriptTab:AddButton({
