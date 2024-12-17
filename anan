@@ -2915,7 +2915,7 @@ BlobmanTab:AddSlider({
 })
 
 BlobmanTab:AddButton({
-	Name = "29桁座標いもり",
+	Name = "27桁座標いもり",
 	Callback = function()
    local function findBlobman()
     for _, v in pairs(workspace:GetDescendants()) do
@@ -2927,34 +2927,23 @@ BlobmanTab:AddButton({
     end
     return nil 
 end
-
-
-
-   
-
-
 local blobman = findBlobman()
-
 if blobman then
     if not blobman.PrimaryPart then
         blobman.PrimaryPart = blobman:FindFirstChild("HumanoidRootPart") or blobman:FindFirstChild("MainPart") or blobman:FindFirstChildWhichIsA("BasePart")
     end
-
     if blobman.PrimaryPart then
-        local positions = {Vector3.new(5e+28, 0, 0), Vector3.new(5e+29, 0, 0), Vector3.new(0, 0, 5e+28),
-         Vector3.new(0, 0, 5e+29)}
+        local positions = {Vector3.new(5e+25, 0, 0), Vector3.new(5e+27, 0, 0), Vector3.new(0, 5e+20, 0), Vector3.new(0, 0, 5e+25),
+         Vector3.new(0, 0, 5e+27), Vector3.new(-12, -40, 7)}
         local index = 1
-
         while true do
-            task.wait(0.1) -- 0.1秒待機
-            
+         task. wait()-- 0.1秒待機
             if index > #positions then
                 index = 1 -- リストの最初に戻る
             end
-            
             local newPosition = positions[index]
             blobman:SetPrimaryPartCFrame(CFrame.new(newPosition))
-            print("Blobmanを新しい位置にテレポートしました:", newPosition)
+            
             
             index = index + 1 -- 次の位置に進む
         end
