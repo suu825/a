@@ -2861,6 +2861,71 @@ BlobmanTab:AddToggle({
         friendModeEnabled = enabled
     end
 })
+local function findBlobman()
+    for _, v in pairs(Workspace:GetDescendants()) do
+        if v.Name == "CreatureBlobman" then
+            if v:FindFirstChild("VehicleSeat") and v.VehicleSeat:FindFirstChild("SeatWeld") and v.VehicleSeat.SeatWeld.Part1:IsDescendantOf(localPlayer.Character) then
+                return v 
+            end
+        end
+    end
+    return nil 
+end
+
+BlobmanTab:AddToggle({
+    Name = "自動お座り",
+    Default = false,
+    Callback = function(enabled)
+        if enabled then
+            autoMountCoroutine = coroutine.create(function()
+                while true do
+                    pcall(function()
+                        local blobmanMounted = false
+                        for _, v in pairs(game.Workspace:GetDescendants()) do
+                            if v.Name == "CreatureBlobman" then
+                                local vehicleSeat = v:FindFirstChild("VehicleSeat")
+                                if vehicleSeat and vehicleSeat:FindFirstChild("SeatWeld") then
+                                    local seatWeld = vehicleSeat.SeatWeld
+                                    if seatWeld.Part1 and seatWeld.Part1:IsDescendantOf(localPlayer.Character) then
+                                        blobmanMounted = true
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                        
+                        if not blobmanMounted then
+                            for _, v in pairs(game.Workspace:GetDescendants()) do
+                                if v.Name == "CreatureBlobman" then
+                                    local vehicleSeat = v:FindFirstChild("VehicleSeat")
+                                    if vehicleSeat and not vehicleSeat:FindFirstChild("SeatWeld") then
+                                        
+                                        localPlayer.Character:MoveTo(vehicleSeat.Position + Vector3.new(0, 1, 0))
+                                        
+                                        
+                                        local prompt = vehicleSeat:FindFirstChildOfClass("ProximityPrompt")
+                                        if prompt then
+                                            fireproximityprompt(prompt)
+                                        end
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                    end)
+                    wait(0.1)
+                end
+            end)
+            coroutine.resume(autoMountCoroutine)
+        else
+            if autoMountCoroutine then
+                coroutine.close(autoMountCoroutine)
+                autoMountCoroutine = nil
+                print("Auto Mount Blobman Disabled")
+            end
+        end
+    end
+})
 
 
 local function findBlobman()
