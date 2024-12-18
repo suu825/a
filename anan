@@ -1727,6 +1727,130 @@ GrabTab:AddToggle({
 })
 
 
+local blackHoleConnection
+local isBlackHoleActive = false
+local Folder
+local Attachment1
+
+arasuTab:AddToggle({
+    Name = "ブラックホール",
+    Default = false,
+    Callback = function(value)
+        -- トグルの状態を切り替え
+        isBlackHoleActive = value
+        print("ブラックホール状態:", isBlackHoleActive) -- デバッグ用出力
+
+        -- サービスの取得
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local LocalPlayer = Players.LocalPlayer
+        local Workspace = game:GetService("Workspace")
+
+        -- プレイヤーキャラクターの取得
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        -- ブラックホールの初期化関数
+        local function initializeFolder()
+            if not Folder then
+                Folder = Instance.new("Folder", Workspace)
+
+                -- ブラックホールの見えないパーツを作成
+                local Part = Instance.new("Part", Folder)
+                Part.Anchored = true
+                Part.CanCollide = false
+                Part.Transparency = 1
+
+                -- パーツにアタッチメントを追加
+                Attachment1 = Instance.new("Attachment", Part)
+            end
+        end
+
+        -- ブラックホール停止時のクリーンアップ関数
+        local function cleanupFolder()
+            if Folder then
+                Folder:Destroy()
+                Folder = nil
+                Attachment1 = nil
+            end
+        end
+
+        -- パーツにブラックホール効果を適用する関数
+        local function ForcePart(v)
+            if v:IsA("Part") and not v.Anchored and not v.Parent:FindFirstChild("Humanoid") and not v.Parent:FindFirstChild("Head") and v.Name ~= "Handle" then
+                for _, x in ipairs(v:GetChildren()) do
+                    if x:IsA("BodyAngularVelocity") or x:IsA("BodyForce") or x:IsA("BodyGyro") or x:IsA("BodyPosition") or x:IsA("BodyThrust") or x:IsA("BodyVelocity") or x:IsA("RocketPropulsion") then
+                        x:Destroy()
+                    end
+                end
+                
+                if v:FindFirstChild("Attachment") then v:FindFirstChild("Attachment"):Destroy() end
+                if v:FindFirstChild("AlignPosition") then v:FindFirstChild("AlignPosition"):Destroy() end
+                if v:FindFirstChild("Torque") then v:FindFirstChild("Torque"):Destroy() end
+                
+                v.CanCollide = false
+                
+                local Torque = Instance.new("Torque", v)
+                Torque.Torque = Vector3.new(0, 0, 0)
+
+                local AlignPosition = Instance.new("AlignPosition", v)
+                local Attachment2 = Instance.new("Attachment", v)
+
+                Torque.Attachment0 = Attachment2
+
+                AlignPosition.MaxForce = math.huge
+                AlignPosition.MaxVelocity = math.huge
+                AlignPosition.Responsiveness = 200
+
+                AlignPosition.Attachment0 = Attachment2
+                AlignPosition.Attachment1 = Attachment1
+            end
+        end
+
+        -- ブラックホールのオン・オフを切り替える関数
+        local function toggleBlackHole()
+            if isBlackHoleActive then
+                -- ブラックホールを初期化
+                initializeFolder()
+
+                -- ワークスペース内の全パーツに効果を適用
+                for _, v in next, Workspace:GetDescendants() do
+                    ForcePart(v)
+                end
+
+                -- 新しいパーツが追加された場合も効果を適用
+                blackHoleConnection = Workspace.DescendantAdded:Connect(function(v)
+                    if isBlackHoleActive then
+                        ForcePart(v)
+                    end
+                end)
+
+                -- アタッチメントをプレイヤーに追従させる
+                spawn(function()
+                    while isBlackHoleActive and RunService.RenderStepped:Wait() do
+                        if Attachment1 and humanoidRootPart then
+                            Attachment1.WorldCFrame = humanoidRootPart.CFrame
+                        end
+                    end
+                end)
+            else
+                -- ブラックホールを停止
+                if blackHoleConnection then
+                    blackHoleConnection:Disconnect()
+                    blackHoleConnection = nil
+                end
+
+                -- 残留リソースをクリーンアップ
+                cleanupFolder()
+            end
+        end
+
+        -- トグルの状態に応じてブラックホールをオン・オフ
+        toggleBlackHole()
+    end
+})
+
+
 
 
 arasuTab:AddToggle({
