@@ -1870,385 +1870,97 @@ DefenseTab:AddSlider({
     end
 })
 
-DefenseTab:AddTextbox({
-	Name = "アンチ掴む、アンカータイム入力式",
-	Default = "Input",
-	TextDisappear = true,
-	Callback = function(Value)
-	
-		D_p = Value
-	end	  
-})
 
-DefenseTab:AddButton({
-        Name = "アンチBring、テレポート",
-        Callback = function()
+local MenuToys = ReplicatedStorage:WaitForChild("MenuToys")
 
-for _,part in pairs(game:GetService("Workspace"):GetDescendants()) do
-if game.Players.LocalPlayer.Character:FindFirstChild('Head') and part:IsA("BasePart" or "UnionOperation" or "Model") and part.Anchored == false and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and part.Name == "Torso" == false and part.Name == "Head" == false and part.Name == "HumanoidRootPart" == false then
-local ForceInstance = Instance.new("BodyPosition")
-for i,c in pairs(part:GetChildren()) do
-if c:IsA("BodyPosition") or c:IsA("BodyGyro") then
-c:Destroy()
-end
-end
-ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)ForceInstance.Parent = part
-ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge
-)ForceInstance.Position = Vector3.new(0, -15000000, 0)
-end
+localPlayer.CharacterAdded:Connect(function(character)
+    playerCharacter = character
+end)
+
+local currentKunai = nil
+local kunaiSpawningEnabled = false
+
+local function spawnItemCf(itemName, cframe)
+    local rotation = Vector3.new(90, 0, 0)
+    local toy = ReplicatedStorage.MenuToys.SpawnToyRemoteFunction:InvokeServer(itemName, cframe, rotation)
+    return toy
 end
 
-
-
-
-          end    
-})
-
-
-getgenv().CanKick = false;
-
-local function KickPlayer()
-    local player = game:GetService("Players").LocalPlayer
-
-    local function KickEnabler(character)
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        local ragdollTouchedHitbox = humanoidRootPart and humanoidRootPart:FindFirstChild("RagdollTouchedHitbox")
-        if ragdollTouchedHitbox then
-            ragdollTouchedHitbox.CanQuery = CanKick
-            ragdollTouchedHitbox.CanCollide = CanKick
-            ragdollTouchedHitbox.Size = CanKick and Vector3.new(A_nnnnd, A_nnnnd, A_nnnnd) or Vector3.new(0, 0, 0)
-        end
+local function attachKunaiToThigh()
+    if currentKunai and currentKunai.Parent then 
+        print("Kunai already exists. Skipping spawn.")
+        return 
     end
 
-    local function ApplyKickToPlayers()
-        for _, otherPlayer in ipairs(game:GetService("Players"):GetPlayers()) do
-            if otherPlayer ~= player and otherPlayer.Character then
-                KickEnabler(otherPlayer.Character)
+    local torso = playerCharacter:WaitForChild("Torso", 5)
+    local leftLeg = playerCharacter:FindFirstChild("Left Leg") or torso
+
+    if torso and leftLeg then
+        local kunaiPosition = torso.CFrame
+            * CFrame.new(-0.5, -torso.Size.Y / 2, 0)
+            * CFrame.Angles(math.rad(-100), 0, 0)
+
+        spawnItemCf("NinjaKunai", kunaiPosition)
+
+        for i = 1, 9999999999999999999 do
+            local toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
+            if toysFolder then
+                currentKunai = toysFolder:FindFirstChild("NinjaKunai")
+                if currentKunai then
+                    break
+                end
             end
+            task.wait()
         end
-    end
 
-    local function CheckForPlayers()
-        while true do
-            ApplyKickToPlayers()
-            wait(2/2000000000)
+        if currentKunai then
+            currentKunai.PrimaryPart.Anchored = false
+
+            local weld = Instance.new("WeldConstraint")
+            weld.Part0 = currentKunai.PrimaryPart
+            weld.Part1 = leftLeg
+            weld.Parent = currentKunai.PrimaryPart
+
+            currentKunai.AncestryChanged:Connect(function(_, parent)
+                if not parent then
+                    print("Kunai has been removed. Respawning...")
+                    currentKunai = nil
+                    attachKunaiToThigh()
+                end
+            end)
+
+            print("Kunai has been attached to the thigh (R6).")
+        else
+            warn("Kunai could not be spawned. Retrying...")
         end
-    end
-
-    player.CharacterAdded:Connect(function(character)
-        KickEnabler(character)
-    end)
-
-    game:GetService("Players").PlayerAdded:Connect(function(newPlayer)
-        newPlayer.CharacterAdded:Connect(function(character)
-            if newPlayer ~= player then
-                KickEnabler(character)
-            end
-        end)
-    end)
-
-    if player.Character then
-        KickEnabler(player.Character)
-    end
-
-    spawn(CheckForPlayers)
-
-    if CanKick then
-        print("Kicking enabled")
     else
-        print("Kicking disabled")
+        warn("Torso or Left Leg not found!")
+    end
+end
+
+local function monitorKunai()
+    while kunaiSpawningEnabled do
+        if not (currentKunai and currentKunai.Parent) then
+            print("Kunai missing, respawning...")
+            currentKunai = nil
+            attachKunaiToThigh()
+        end
+        task.wait()
     end
 end
 
 DefenseTab:AddToggle({
-    Name = "プレイヤーから離れる",
+    Name = "アンチキック",
     Default = false,
-    Callback = function(Value)
-        CanKick = Value
-    end
-})
-
-A_nnnnd = 200
-
-DefenseTab:AddSlider({
-    Name = "プレイヤーから離れる、離れる距離",
-    Min = 0,
-    Max = 1000000000000,
-    Color = Color3.fromRGB(255, 255, 255),
-    ValueName = ".",
-    Increment = 1000,
-    Default = A_nnnnd ,
     Callback = function(value)
-        A_nnnnd  = value
-    end
-})
-
-DefenseTab:AddTextbox({
-	Name = "プレイヤーから離れる、離れる距離入力式",
-	Default = "Input",
-	TextDisappear = true,
-	Callback = function(Value)
-	
-		A_nnnnd = Value
-	end	  
-})
-
-
-
-KickPlayer()
---КОНЕЦ
-
-local grabbingScriptEnabled = false
-
-local function ToggleGrabbingScript(enabled)
-    grabbingScriptEnabled = enabled
-    local grabbingScript = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("GrabbingScript", true)
-    if grabbingScript then
-        grabbingScript.Disabled = not enabled
-    end
-end
-
-local function OnCharacterAdded(character)
-    if not grabbingScriptEnabled then
-        ToggleGrabbingScript(false)
-    end
-end
-
-if game.Players.LocalPlayer.Character then
-    OnCharacterAdded(game.Players.LocalPlayer.Character)
-end
-
-game.Players.LocalPlayer.CharacterAdded:Connect(OnCharacterAdded)
-
-
-DefenseTab:AddToggle({
-    Name = "つけてね",
-    Default = true,
-
-    Callback = function(enabled)
-        ToggleGrabbingScript(enabled)
+        kunaiSpawningEnabled = value
+        if value then
+            attachKunaiToThigh()
+            task.spawn(monitorKunai)
+        else
+            kunaiSpawningEnabled = false
+            print("Kunai monitoring stopped.")
+        end
     end
 })
 
@@ -2861,6 +2573,8 @@ BlobmanTab:AddToggle({
         friendModeEnabled = enabled
     end
 })
+
+
 local function findBlobman()
     for _, v in pairs(Workspace:GetDescendants()) do
         if v.Name == "CreatureBlobman" then
@@ -2926,7 +2640,6 @@ BlobmanTab:AddToggle({
         end
     end
 })
-
 
 local function findBlobman()
     for _, v in pairs(workspace:GetDescendants()) do
@@ -10406,8 +10119,6 @@ freezeTab:AddToggle({
 arasuTab:AddLabel("うんこは自分でお願いします…")
 arasuTab:AddLabel("食べたらオンにしてゲロかけてください")
 
-local bringingEnabled = false  -- Variable to track if bringing is enabled
-local bringCoroutine = nil      -- Variable to hold the coroutine
 
 arasuTab:AddToggle({
     Name = "ゲロかけALL",
@@ -10442,14 +10153,15 @@ arasuTab:AddToggle({
 })
 
 
+
 arasuTab:AddToggle({
     Name = "ゲロかけALLする時だけつけてね",
     Default = false,
     Callback = function(value)
         Clipon = value
+local Plr = Players.LocalPlayer
+
         if Clipon then
-         local Plr = Players.LocalPlayer
-    
             SteppedConnection = RunService.Stepped:Connect(function()
                 for _, obj in pairs(Workspace:GetChildren()) do
                     if obj.Name == Plr.Name then
