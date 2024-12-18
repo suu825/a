@@ -1,8 +1,10 @@
 
 
+local Players = game:GetService("Players")
+local playerNames = {}
 
 
-
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -958,7 +960,6 @@ OrionLib:MakeNotification({
 
 local GrabTab = Window:MakeTab({Name = "掴む", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
 local arasuTab = Window:MakeTab({Name = "荒らす用", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
-local freezeTab = Window:MakeTab({Name = "無敵突破", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
 local GTab = Window:MakeTab({Name = "リンク", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
 local DefenseTab = Window:MakeTab({Name = "アンチ", Icon =  "rbxassetid://129017321982695", PremiumOnly = false})
 local BlobmanTab = Window:MakeTab({Name = "ブロブマン掴む", Icon =  "rbxassetid://88840235976282", PremiumOnly = false})
@@ -2089,52 +2090,124 @@ DefenseTab:AddToggle({
 })
 
 
-DefenseTab:AddToggle({
-    Name = "アンチキック掴む",
-    Default = false,
-    Color = Color3.fromRGB(255, 255, 255),
-    Save = true,
-    Flag = "AntiKickGrab",
-    Callback = function(enabled)
-        if enabled then
-            local character = localPlayer.Character
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 
-            antiKickCoroutine = RunService.Heartbeat:Connect(function()
-                local character = localPlayer.Character
-                if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FirePlayerPart") then
-                    local partOwner = character:FindFirstChild("HumanoidRootPart"):FindFirstChild("FirePlayerPart"):FindFirstChild("PartOwner")
-                    if partOwner and partOwner.Value ~= localPlayer.Name then
-                        local args = {[1] = character:WaitForChild("HumanoidRootPart"), [2] = 0}
-                        game:GetService("ReplicatedStorage"):WaitForChild("CharacterEvents"):WaitForChild("RagdollRemote"):FireServer(unpack(args))
-                        print("grabbity shap!")
-                        wait(O_e)
-                        Struggle:FireServer()
-                    end
-                end
-            end)
-        else
-            if antiKickCoroutine then
-                antiKickCoroutine:Disconnect()
-                antiKickCoroutine = nil
+local enabled = false -- トグルの状態を管理
+local connections = {} -- イベント接続を管理
+local range = 900 -- 雪玉を無効化する範囲（デフォルトは50）
+
+-- 部位やパーツを無効化する関数
+local function disablePart(part)
+    if part:IsA("BasePart") then
+        part.CanTouch = false
+        part.CanCollide = false
+        part.CanQuery = false
+    elseif part:IsA("TouchTransmitter") or part:IsA("WeldConstraint") then
+        part:Destroy()
+    end
+end
+
+-- 雪玉や SoundPart を無効化する関数
+local function handleSpecialPart(part)
+    if part:IsA("Model") and (part.Name == "BallSnowball" or part.Name == "SoundPart") then
+        for _, descendant in pairs(part:GetDescendants()) do
+            disablePart(descendant)
+        end
+    
+    end
+end
+
+-- 特定の範囲内の Snowball や SoundPart を無効化
+local function handleSpecialPartsInRange(center, range)
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") and (obj.Name == "BallSnowball" or obj.Name == "SoundPart") then
+            local primaryPart = obj.PrimaryPart or obj:FindFirstChildOfClass("BasePart")
+            if primaryPart and (primaryPart.Position - center).Magnitude <= range then
+                handleSpecialPart(obj)
             end
         end
     end
-})
+end
+
+-- 0.01秒ごとに範囲内の Snowball や SoundPart を無効化
+local function setupRepeatingHandler()
+    local connection = RunService.Heartbeat:Connect(function()
+        if enabled then
+            local center = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position or Vector3.zero
+            handleSpecialPartsInRange(center, range)
+        end
+    end)
+    table.insert(connections, connection)
+end
+
+-- 新しい Snowball や SoundPart を監視して無効化
+local function setupSpecialPartListener()
+    local connection = workspace.DescendantAdded:Connect(function(descendant)
+        if enabled and descendant:IsA("Model") and (descendant.Name == "BallSnowball" or descendant.Name == "SoundPart") then
+            wait() -- 0.01秒後に確認
+            handleSpecialPart(descendant)
+        end
+    end)
+    table.insert(connections, connection)
+end
+
+-- キャラクターの部位を無効化
+local function disableCharacterCollision(character)
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanTouch = false
+            part.CanCollide = false
+        end
+    end
+  
+end
+
+-- 新しいキャラクターが生成されたときに設定を適用
+local function setupCharacterListener()
+    LocalPlayer.CharacterAdded:Connect(function(character)
+        character:WaitForChild("HumanoidRootPart") -- キャラクターが完全にロードされるまで待機
+        disableCharacterCollision(character)
+    end)
+end
+
+-- 既存のキャラクターに設定を適用
+local function handleExistingCharacter()
+    if LocalPlayer.Character then
+        disableCharacterCollision(LocalPlayer.Character)
+    end
+end
+
+-- イベントリスナーを解除
+local function clearConnections()
+    for _, connection in pairs(connections) do
+        if connection.Connected then
+            connection:Disconnect()
+        end
+    end
+    connections = {}
+end
 
 
-DefenseTab:AddSlider({
-    Name = "アンチキック反応速度",
-    Min = 0,
-    Max = 5,
-    Color = Color3.fromRGB(255, 255, 255),
-    ValueName = ".",
-    Increment = 1,
-    Default = O_e ,
-    Callback = function(value)
-        O_e  = value
+
+DefenseTab:AddToggle({
+    Name = "アンチ雪玉",
+    Default = false,
+    Callback = function(state)
+        enabled = state
+        if enabled then
+           
+            handleExistingCharacter() -- 現在のキャラクターを無効化
+            setupCharacterListener() -- 新しいキャラクターの監視
+            setupRepeatingHandler() -- 0.01秒ごとの処理
+            setupSpecialPartListener() -- 新しい雪玉や SoundPart の監視
+        else
+       
+            clearConnections() -- イベントリスナーを解除
+        end
     end
 })
-
 
 DefenseTab:AddToggle({
     Name = "アンチ爆発",
@@ -2911,6 +2984,119 @@ AuraTab:AddSlider({
     end
 })
 
+
+local Players = game:GetService("Players")
+
+-- オーラの設定
+local ARadius = 25  -- 初期半径
+local auraHeight = 30   -- 初期浮遊高さ
+local rotationSpeed = 20 -- 初期回転速度
+local auraActive = false -- トグルの状態を保持
+
+-- 対象オブジェクトのリスト
+local targetObjects = {"Part", "SoundPart", "BalloonModel", "BookManyPages", "BookNormal", "Airhorn", "HitboxBody", "Boombox", "Hitbox", "HitboxPart", "FactoryTable", "Pyramid", "FutureAngularDesk"}
+
+-- 対象のオブジェクトを取得する関数
+local function getTargetObjects()
+    local objects = {}
+    for _, descendant in ipairs(workspace:GetDescendants()) do
+        if descendant:IsA("BasePart") and table.find(targetObjects, descendant.Name) then
+            table.insert(objects, descendant)
+        end
+    end
+    return objects
+end
+
+-- オブジェクトを自分の周りで指定した半径に保ちながら回転させる機能
+local function applyRotationAroundPlayer(part, centerCFrame, currentAngle)
+    if part:IsA("BasePart") then
+        -- 新しい位置を計算（半径を広げる）
+        local newX = centerCFrame.Position.X + ARadius * math.cos(currentAngle)
+        local newZ = centerCFrame.Position.Z + ARadius * math.sin(currentAngle)
+        local newY = centerCFrame.Position.Y + auraHeight -- 浮遊高さを設定
+
+        -- 位置を更新
+        local newPosition = Vector3.new(newX, newY, newZ)
+        local bodyPosition = part:FindFirstChild("RotationPosition") or Instance.new("BodyPosition", part)
+        bodyPosition.Name = "RotationPosition"
+        bodyPosition.Position = newPosition
+        bodyPosition.MaxForce = Vector3.new(4000, 4000, 4000)
+        bodyPosition.P = 3000
+    end
+end
+
+-- オーラの処理
+local function processAura()
+    local angleStep = 5 -- 現在の回転角度を保持
+
+    while auraActive do
+        local success, err = pcall(function()
+            local character = Players.LocalPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local humanoidRootPart = character.HumanoidRootPart
+                local objects = getTargetObjects()
+
+                -- 回転角度を進める
+                angleStep = angleStep + math.rad(rotationSpeed * 0.9)
+
+                for _, obj in pairs(objects) do
+                    local distance = (obj.Position - humanoidRootPart.Position).Magnitude
+                    if distance <= ARadius + 5 then -- 許容範囲内にある場合
+                        applyRotationAroundPlayer(obj, humanoidRootPart.CFrame, angleStep)
+                    end
+                end
+            end
+        end)
+
+        if not success then
+            warn("Error in Aura: " .. tostring(err))
+        end
+
+        wait()
+    end
+end
+
+AuraTab:AddToggle({
+    Name = "オブジェクトオーラ回転",
+    Default = false,
+    Save = true,
+    Callback = function(enabled)
+        auraActive = enabled -- トグル状態を更新
+        if enabled then
+            coroutine.wrap(processAura)() -- オーラの処理を開始
+        end
+    end
+})
+
+-- 半径スライダー
+AuraTab:AddSlider({
+    Name = "回転の速度",
+    Min = 1,
+    Max = 450,  -- 最大値を1000に変更
+    Default = auraRadius,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 1,
+    ValueName = "",
+    Callback = function(value)
+        ARadius = value -- 半径をリアルタイムで変更
+    end
+})
+
+-- 高さスライダー
+AuraTab:AddSlider({
+    Name = "高さ",
+    Min = 1,
+    Max = 50,
+    Default = auraHeight,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 1,
+    ValueName = "",
+    Callback = function(value)
+        auraHeight = value -- 高さをリアルタイムで変更
+    end
+})
+
+
 AuraTab:AddToggle({
     Name = "掴むオーラ",
     Color = Color3.fromRGB(255, 255, 255),
@@ -3646,13 +3832,12 @@ CharacterTab:AddToggle({
 })
  
 -- Infinite Jump Functionality
-local UserInputService = game:GetService("UserInputService")
+UserInputService = game:GetService("UserInputService")
 UserInputService.JumpRequest:Connect(function()
     if InfiniteJumpEnabled then
         local player = game.Players.LocalPlayer
         if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
             player.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-         
         end
     end
 end)
@@ -8100,7 +8285,6 @@ end
 })
 
 
-local autoTeleportOnFall = false
 SlotTab:AddToggle({
     Name = "オートテレポート家",
     Default = false,
@@ -8137,7 +8321,6 @@ CharacterTab:AddSlider({
 	end	  
 })  
 
-local enabled = false
 
 -- MainTabにトグルスイッチを追加
 GrabTab:AddToggle({
@@ -8161,8 +8344,7 @@ game:GetService("Workspace").ChildAdded:Connect(function(model)
     end    
 end)
 
-local enabled = false
-local connection
+
 
 -- MainTabにトグルスイッチを追加
 GrabTab:AddToggle({
@@ -8258,7 +8440,6 @@ GrabTab:AddToggle({
     end
 })
 
-local enabled = false
 
 -- MainTabにトグルスイッチを追加
 GrabTab:AddToggle({
@@ -9384,573 +9565,6 @@ toclipboard("https://discord.gg/RUGt4gJcbJ")
   	end    
 })
 
-local Workspace = game:GetService("Workspace")
-local Players = game:GetService("Players")
-
-local function HandleGrabParts(model)
-    local part_to_impulse = model.GrabPart.WeldConstraint.Part1
-    if part_to_impulse then
-        local humanoid = part_to_impulse.Parent:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            -- プレイヤーを上にテレポート
-            local character = part_to_impulse.Parent
-            local rootPart = character:FindFirstChild("HumanoidRootPart")
-            if rootPart then
-                -- テレポート先の上の位置を計算
-                local upVector = Vector3.new(0, l_k, 0) -- 上に20単位移動するベクトル
-                local newPosition = rootPart.Position + upVector
-
-                -- プレイヤーをテレポート
-                rootPart.CFrame = CFrame.new(newPosition)
-
-                -- プレイヤーを浮遊状態に設定する
-                humanoid.PlatformStand = true
-                humanoid.AutoRotate = false
-
-                -- しゃがまないようにする
-                humanoid.AutoCrouch = false
-                humanoid.Sit = false
-
-                -- 触れた人がragdoll化しないようにする
-                humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
-            end
-        end
-    end
-end
-
--- 新しい子が追加されたときのイベント
-Workspace.ChildAdded:Connect(function(model)
-    if model.Name == "GrabParts" then
-        -- Toggleの状態に応じて動作を切り替える
-        local toggleState = GrabTab.ToggleState or false  -- デフォルトはfalse
-
-        if toggleState then
-            HandleGrabParts(model)
-        end
-    end
-end)
-
--- 初期のマップ探索
-for _, model in pairs(Workspace:GetChildren()) do
-    if model.Name == "GrabParts" then
-        -- Toggleの状態に応じて動作を切り替える
-        local toggleState = GrabTab.ToggleState or false  -- デフォルトはfalse
-
-        if toggleState then
-            HandleGrabParts(model)
-        end
-    end
-end
-
--- Toggleの状態が変わったときに呼ばれるコールバック関数
-GrabTab:AddToggle({
-    Name = "テレポート掴む",
-    Default = false,
-    Save = true,
-    Flag = "narakuGrabTeleport",
-    Callback = function(Value)
-        GrabTab.ToggleState = Value
-        print("Toggleの状態が変更されました:", Value)
-    end    
-})
-
-l_k = 0
-
-GrabTab:AddSlider({
-    Name = "テレポート",
-    Min = -100,
-    Max = 100,
-    Color = Color3.fromRGB(255, 255, 255),
-    ValueName = ".",
-    Increment = 10,
-    Default = l_k ,
-    Callback = function(value)
-        l_k  = value
-    end
-})
-
-
-local blobalter = 9887788
-local function blobGrabPlayer(player, blobman)
-    if blobalter == 0 then
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local args = {
-                [1] = blobman:FindFirstChild("LeftDetector"),
-                [2] = player.Character:FindFirstChild("HumanoidRootPart"),
-                [3] = blobman:FindFirstChild("LeftDetector"):FindFirstChild("LeftWeld")
-            }
-            blobman:WaitForChild("BlobmanSeatAndOwnerScript"):WaitForChild("CreatureGrab"):FireServer(unpack(args))
-            blobalter = 9888
-        end
-    else
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local args = {
-                [1] = blobman:FindFirstChild("RightDetector"),
-                [2] = player.Character:FindFirstChild("HumanoidRootPart"),
-                [3] = blobman:FindFirstChild("RightDetector"):FindFirstChild("RightWeld")
-            }
-            blobman:WaitForChild("BlobmanSeatAndOwnerScript"):WaitForChild("CreatureGrab"):FireServer(unpack(args))
-            blobalter = 95578
-        end
-    end
-end
-local function isDescendantOf(target, other)
-    local currentParent = target.Parent
-    while currentParent do
-        if currentParent == other then
-            return true
-        end
-        currentParent = currentParent.Parent
-    end
-    return false
-end
-local localPlayer = Players.LocalPlayer
-local playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-
-localPlayer.CharacterAdded:Connect(function(character)
-    playerCharacter = character
-end)
-local blobman8099999999999
-blobman98868868755586687238887687558878 = ATab:AddToggle({
-    Name = "ALLtest",
-    Color = Color3.fromRGB(255, 255, 255),
-    Default = false,
-    Callback = function(enabled)
-        if enabled then
-            print("Toggle enabled")
-            blobmanCoroutine = coroutine.create(function()
-                local foundBlobman = false
-                for i, v in pairs(game.Workspace:GetDescendants()) do
-                    if v.Name == "CreatureBlobman" then
-                        print("Found CreatureBlobman")
-                        if v:FindFirstChild("VehicleSeat") and v.VehicleSeat:FindFirstChild("SeatWeld") and isDescendantOf(v.VehicleSeat.SeatWeld.Part1, localPlayer.Character) then
-                            print("Mounted on blobman")
-                            blobman = v
-                            foundBlobman = true
-                            break
-                        end
-                    end
-                end
-                print("Out of the loop!")
-
-                if not foundBlobman then
-                    print("No mount found")
-                   
-                    blobman1:Set(false)
-                    blobman = nil
-                    coroutine.close(blobmanCoroutine)
-                    blobmanCoroutine = nil
-                    return
-                end
-
-                
-local playersToAttract = 9999
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-
-
-local playersToAttract = 9999
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-local playersToAttract = 9999
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-local playersToAttract = 9999
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-local playersToAttract = 9999
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-local playersToAttract = 9999
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 6
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-while true do
-    pcall(function()
-        while wait() do
-            local attractedPlayers = 25
-            for i, v in pairs(Players:GetChildren()) do
-                if blobman and v ~= localPlayer and attractedPlayers < playersToAttract then
-                    blobGrabPlayer(v, blobman)
-                    
-                    attractedPlayers = attractedPlayers + 8
-                    wait(G_d)
-                elseif attractedPlayers >= playersToAttract then
-                    break
-                end
-            end
-        end
-    end)
-    wait(G_d)
-end
-
-
-
-            end)
-            coroutine.resume(blobmanCoroutine)
-        else
-            if blobmanCoroutine then
-                coroutine.close(blobmanCoroutine)
-                blobmanCoroutine = nil
-                blobman = nil
-            end
-        end
-    end
-})
-
-G_d = -4483345998448334599844833459984483345998448334599844833459984483345998
 
 
 
@@ -9964,7 +9578,7 @@ HomeTab:AddParagraph("表示の名前", game.Players.LocalPlayer.DisplayName)
 HomeTab:AddParagraph("ユーザーid ", tostring(game.Players.LocalPlayer.UserId))
 HomeTab:AddParagraph("アカウントの時間", tostring(game.Players.LocalPlayer.AccountAge))
 
-local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+
 HomeTab:AddParagraph("ゲームの名前", gameName)
 HomeTab:AddParagraph("ゲームid", tostring(game.PlaceId))
 HomeTab:AddParagraph("最大人数", tostring(game.Players.MaxPlayers))
@@ -10104,140 +9718,8 @@ FunTab:AddButton({
     Name = "人形切断",
     Callback = cleanupConnections(connections)
 })
-local Players = game:GetService("Players")
-local playerNames = {}
-
-for _, player in ipairs(Players:GetPlayers()) do
-    table.insert(playerNames, player.Name)
-end
-
-local Bring
-
-freezeTab:AddLabel("ブロブマンではありません")
-freezeTab:AddLabel("freezeの方からやらないと意味ありません")
-local PlayerDropdown = freezeTab:AddDropdown({
-    Name = "Bringしたいプレイヤーを選ぶ",
-    Options = playerNames,
-    Callback = function(selected)
-        Bring = selected  -- Store the selected player name
-    end
-})
-
-local function RefreshPlayerList()
-    playerNames = {}
-    for _, player in ipairs(Players:GetPlayers()) do
-        table.insert(playerNames, player.Name)
-    end
-    PlayerDropdown:Refresh(playerNames, true)
-end
-
-Players.PlayerAdded:Connect(function()
-    RefreshPlayerList()
-end)
-
-Players.PlayerRemoving:Connect(function()
-    RefreshPlayerList()
-end)
-
-freezeTab:AddButton({
-    Name = "選択したプレイヤーをBring",
-    Callback = function()
-
-local Players = game:GetService("Players") -- Ensure to get the Players service
-local targetPlayer = Players:FindFirstChild(Bring)
-
-if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-    local localPlayer = Players.LocalPlayer
-    local localPosition = localPlayer.Character.HumanoidRootPart.Position
-    -- Get the direction the local player is facing
-    local lookVector = localPlayer.Character.HumanoidRootPart.CFrame.LookVector
-
-    -- Calculate the new position 2 meters in front of the local player
-    local targetPosition = localPosition + (lookVector * 5)
-
-    -- Move the target player's HumanoidRootPart to this new position
-    targetPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
-else
-    print("選択したプレイヤーが見つかりません。")
-end
-
-    end
-})
 
 
-
-local Players = game:GetService("Players")
-local playerNames = {}
-
-for _, player in ipairs(Players:GetPlayers()) do
-    table.insert(playerNames, player.Name)
-end
-
-local FreezeP
-
-freezeTab:AddLabel("選んだプレイヤーをfreezeさせたらBringを押してください")
-freezeTab:AddLabel("Bringしたら相手のブロブマンが来ると思います")
-freezeTab:AddLabel("姿は見えないと思うので一度freezeオフにしてすぐオンにするといいです")
-freezeTab:AddLabel("そして雪玉だして相手に当てるだけ")
-local PlayerDropdown = freezeTab:AddDropdown({
-    Name = "freezeさせたいプレイヤーを選ぶ",
-    Options = playerNames,
-    Callback = function(selected)
-        FreezeP = selected  -- Store the selected player name
-    end
-})
-
-local function RefreshPlayerList()
-    playerNames = {}
-    for _, player in ipairs(Players:GetPlayers()) do
-        table.insert(playerNames, player.Name)
-    end
-    PlayerDropdown:Refresh(playerNames, true)
-end
-
-Players.PlayerAdded:Connect(function()
-    RefreshPlayerList()
-end)
-
-Players.PlayerRemoving:Connect(function()
-    RefreshPlayerList()
-end)
-
--- Function to freeze or unfreeze the selected player
-local isFrozen = false
-
-local function toggleFreezeSelectedPlayer()
-    if FreezeP then
-        local playerToFreeze = Players:FindFirstChild(FreezeP)
-        
-        if playerToFreeze and playerToFreeze.Character then
-            local character = playerToFreeze.Character
-            for _, part in pairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.Anchored = not isFrozen  -- Toggle Anchored based on isFrozen state
-                end
-            end
-            
-            isFrozen = not isFrozen  -- Toggle the freeze state
-        else
-            print("Selected player does not have a character.")
-        end
-    else
-        print("No player selected.")
-    end
-end
-
-freezeTab:AddToggle({
-    Name = "選んだプレイヤーをfreeze",
-    Default = false,
-    Callback = function(toggleState)
-        if toggleState then
-            toggleFreezeSelectedPlayer()  -- Call the function to freeze the selected player
-        else
-            toggleFreezeSelectedPlayer()  -- Call the function to unfreeze the selected player
-        end
-    end
-})
 
 
 arasuTab:AddLabel("うんこは自分でお願いします…")
@@ -10306,7 +9788,6 @@ local Plr = Players.LocalPlayer
     end
 })
     
-
 
 
 
