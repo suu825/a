@@ -10441,14 +10441,15 @@ arasuTab:AddToggle({
     end
 })
 
-local Plr = Players.LocalPlayer
-    
+
 arasuTab:AddToggle({
     Name = "ゲロかけALLする時だけつけてね",
     Default = false,
     Callback = function(value)
         Clipon = value
         if Clipon then
+         local Plr = Players.LocalPlayer
+    
             SteppedConnection = RunService.Stepped:Connect(function()
                 for _, obj in pairs(Workspace:GetChildren()) do
                     if obj.Name == Plr.Name then
