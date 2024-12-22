@@ -1,3 +1,88 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Debris = game:GetService("Debris")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- イベントの取得
+local GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
+local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
+
+-- オーラの設定
+
+ auraCoroutine = nil
+
+-- 対象オブジェクトのリスト
+-- 処理済みオブジェクトを追跡するためのテーブル
+ processedObjects = {}
+
+-- 回転するオブジェクト用テーブル
+ rotatingObjects = {}
+
+-- オブジェクトをノークリップ状態にする処理
+local function HandleNoClip(part)
+    if part:IsA("BasePart") then
+        -- ノークリップ設定qjsp
+        part.CanCollide = true
+        part.Anchored = false -- 物理エンジンに沈むのを防ぐ
+
+        -- ネットワークオーナーの設定
+        SetNetworkOwner:FireServer(part, part.CFrame)
+
+        -- 処理済みオブジェクトに追加
+        processedObjects[part] = true
+    end
+end
+
+-- 対象オブジェクトを取得する関数
+local function getTargetObjects()
+    local objects = {}
+    for _, descendant in ipairs(Workspace:GetDescendants()) do
+        if descendant:IsA("BasePart") and table.find(targetObjects, descendant.Name) and not processedObjects[descendant] then
+            table.insert(objects, descendant)
+        end
+    end
+    return objects
+end
+
+
+-- イベントの取得
+local GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
+local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
+
+-- オーラの設定
+local ObjectGrabDistance = 25
+local auraCoroutine = nil
+
+-- 対象オブジェクトのリスト
+local targetObjects = {"Part", "SoundPart", "BalloonModel", "BookManyPages", "BookNormal", "Airhorn", "HitboxBody", "Boombox", "Hitbox", "HitboxPart", "FactoryTable", "Pyramid", "FutureAngularDesk", "PlankMaker", "OvenMicrowaveWhite", "MeshPart", "OctagonBall", "FoodHotSauce", "TrussPart", "Chest", "Hoop", "Body", "BombMissile", "Wedge", "PaperPlane", "DiceBig", "MidiMakr", "BellSmall", "UnionOperation"}
+
+-- 対象のオブジェクトを取得する関数
+local function getTargetObjects()
+    local objects = {}
+    for _, descendant in ipairs(workspace:GetDescendants()) do
+        if descendant:IsA("BasePart") and table.find(targetObjects, descendant.Name) then
+            table.insert(objects, descendant)
+        end
+    end
+    return objects
+end
+
+-- オブジェクトを掴む機能
+local function grabObject(part, playerCFrame)
+    if part:IsA("BasePart") then
+        -- SetNetworkOwnerを使って物理的に掴む
+        SetNetworkOwner:FireServer(part, playerCFrame)
+
+        -- 掴む状態を1秒後に解除
+        task.delay(20, function()
+            if part and part.Parent then
+                -- 掴み解除後の処理を追加可能
+            end
+        end)
+    end
+end
 
 
 local Players = game:GetService("Players")
@@ -917,74 +1002,6 @@ local function blobGrabPlayer(player, blobman)
     end
 end
 
-local ARadius = 25  -- 初期半径
-local auraHeight = 30   -- 初期浮遊高さ
-local rotationSpeed = 20 -- 初期回転速度
-local auraActive = false -- トグルの状態を保持
-
--- 対象オブジェクトのリスト
-local targetObjects = {"Part", "SoundPart", "BalloonModel", "BookManyPages", "BookNormal", "Airhorn", "HitboxBody", "Boombox", "Hitbox", "HitboxPart", "FactoryTable", "Pyramid", "FutureAngularDesk"}
-
--- 対象のオブジェクトを取得する関数
-local function getTargetObjects()
-    local objects = {}
-    for _, descendant in ipairs(workspace:GetDescendants()) do
-        if descendant:IsA("BasePart") and table.find(targetObjects, descendant.Name) then
-            table.insert(objects, descendant)
-        end
-    end
-    return objects
-end
-
--- オブジェクトを自分の周りで指定した半径に保ちながら回転させる機能
-local function applyRotationAroundPlayer(part, centerCFrame, currentAngle)
-    if part:IsA("BasePart") then
-        -- 新しい位置を計算（半径を広げる）
-        local newX = centerCFrame.Position.X + ARadius * math.cos(currentAngle)
-        local newZ = centerCFrame.Position.Z + ARadius * math.sin(currentAngle)
-        local newY = centerCFrame.Position.Y + auraHeight -- 浮遊高さを設定
-
-        -- 位置を更新
-        local newPosition = Vector3.new(newX, newY, newZ)
-        local bodyPosition = part:FindFirstChild("RotationPosition") or Instance.new("BodyPosition", part)
-        bodyPosition.Name = "RotationPosition"
-        bodyPosition.Position = newPosition
-        bodyPosition.MaxForce = Vector3.new(4000, 4000, 4000)
-        bodyPosition.P = 3000
-    end
-end
-
--- オーラの処理
-local function processAura()
-    local angleStep = 5 -- 現在の回転角度を保持
-
-    while auraActive do
-        local success, err = pcall(function()
-            local character = Players.LocalPlayer.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                local humanoidRootPart = character.HumanoidRootPart
-                local objects = getTargetObjects()
-
-                -- 回転角度を進める
-                angleStep = angleStep + math.rad(rotationSpeed * 0.9)
-
-                for _, obj in pairs(objects) do
-                    local distance = (obj.Position - humanoidRootPart.Position).Magnitude
-                    if distance <= ARadius + 5 then -- 許容範囲内にある場合
-                        applyRotationAroundPlayer(obj, humanoidRootPart.CFrame, angleStep)
-                    end
-                end
-            end
-        end)
-
-        if not success then
-            warn("Error in Aura: " .. tostring(err))
-        end
-
-        wait()
-    end
-end
-
 
 local version = getVersion()
 
@@ -1450,8 +1467,8 @@ ServerTab:AddSlider({
     end
 })
 
-local randomSeed = Random.new()
-local crazyLine = false 
+ randomSeed = Random.new()
+ crazyLine = false 
 
 -- Assuming `ServerTab` is defined elsewhere in your code
 ServerTab:AddToggle({
@@ -1806,8 +1823,8 @@ GrabTab:AddToggle({
 })
 
 
-local blackHoleConnection
-local isBlackHoleActive = false
+ 
+ isBlackHoleActive = false
 local Folder
 local Attachment1
 
@@ -2626,7 +2643,6 @@ end
   
    
 
-local selectedPlayerToggle
 selectedPlayerToggle = BlobmanTab:AddToggle({
     Name = "オートBring",
     Default = false,
@@ -2670,11 +2686,10 @@ selectedPlayerToggle = BlobmanTab:AddToggle({
     end
 })
 
-local friendModeEnabled = false -- フレンドだけ効かないトグルを追加
+ friendModeEnabled = false -- フレンドだけ効かないトグルを追加
 
 
 
-local blobmanG_e
 blobmanG_e = BlobmanTab:AddToggle({
     Name = "ALL",
     Color = Color3.fromRGB(255, 255, 255),
@@ -2850,7 +2865,7 @@ BlobmanTab:AddToggle({
 })
 
 
-local function findBlobman()
+ function findBlobman()
     for _, v in pairs(Workspace:GetDescendants()) do
         if v.Name == "CreatureBlobman" then
             if v:FindFirstChild("VehicleSeat") and v.VehicleSeat:FindFirstChild("SeatWeld") and v.VehicleSeat.SeatWeld.Part1:IsDescendantOf(localPlayer.Character) then
@@ -3110,200 +3125,9 @@ ObjectTab:AddSlider({
 
 
 
-ObjectTab:AddToggle({
-    Name = "オブジェクト掴むオーラ",
-    Default = false,
-    Save = true,
-    Callback = function(enabled)
-        if enabled then
-            auraCoroutine = coroutine.create(rocessAura)
-            coroutine.resume(auraCoroutine)
-        elseif auraCoroutine then
-            coroutine.close(auraCoroutine)
-            auraCoroutine = nil
-        end
-    end
-})
 
 
- targetObjects = {"Part", "SoundPart", "BalloonModel", "BookManyPages", "BookNormal", "Airhorn", "HitboxBody", "Boombox", "Hitbox", "HitboxPart", "FactoryTable", "Pyramid", "FutureAngularDesk"}
-
--- 対象のオブジェクトを取得する関数
- function getTargetObjects()
-     objects = {}
-    for _, descendant in ipairs(workspace:GetDescendants()) do
-        if descendant:IsA("BasePart") and table.find(targetObjects, descendant.Name) then
-            table.insert(objects, descendant)
-        end
-    end
-    return objects
-end
-
--- オブジェクトを掴む機能
- function grabObject(part, playerCFrame)
-    if part:IsA("BasePart") then
-        -- SetNetworkOwnerを使って物理的に掴む
-        SetNetworkOwner:FireServer(part, playerCFrame)
-
-        -- 掴む状態を1秒後に解除
-        task.delay(20, function()
-            if part and part.Parent then
-                -- 掴み解除後の処理を追加可能
-            end
-        end)
-    end
-end
-
--- オブジェクトを吹き飛ばす機能
- function applyKnockback(part)
-    if part:IsA("BasePart") then
-        local randomDirection = Vector3.new(
-            math.random(0, 0) / 0,
-            0,
-            math.random(0, 0) / 0
-        ).Unit
-
-        local force = Vector3.new(0, 0, 0)
-
-        local velocity = Instance.new("BodyVelocity", part)
-        velocity.Name = "KnockbackVelocity"
-        velocity.Velocity = force
-        velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        Debris:AddItem(velocity, 1)
-    end
-end
-
-
-
- function rocessAura()
-    while true do
-        local success, err = pcall(function()
-            local character = Players.LocalPlayer.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                local humanoidRootPart = character.HumanoidRootPart
-                local playerCFrame = humanoidRootPart.CFrame
-
-
-                local objects = getTargetObjects()
-                for _, obj in pairs(objects) do
-                    local distance = (obj.Position - humanoidRootPart.Position).Magnitude
-                    if distance <= auraRadius then
-                        grabObject(obj, playerCFrame)
-
-
-                        task.delay(0, function()
-                            applyKnockback(obj)
-                        end)
-                    end
-                end
-            end
-        end)
-
-        if not success then
-            warn("Error in Aura: " .. tostring(err))
-        end
-
-        wait()
-    end
-end
-
- targetObjects = {"Part", "SoundPart", "BalloonModel", "BookManyPages", "BookNormal", "Airhorn", "HitboxBody", "Boombox", "Hitbox", "HitboxPart", "FactoryTable", "Pyramid", "FutureAngularDesk"}
-
--- 対象のオブジェクトを取得する関数
- function getTargetObjects()
-    local objects = {}
-    for _, descendant in ipairs(workspace:GetDescendants()) do
-        if descendant:IsA("BasePart") and table.find(targetObjects, descendant.Name) then
-            table.insert(objects, descendant)
-        end
-    end
-    return objects
-end
-
--- オブジェクトを掴む機能
- function grabObject(part, playerCFrame)
-    if part:IsA("BasePart") then
-        -- SetNetworkOwnerを使って物理的に掴む
-        SetNetworkOwner:FireServer(part, playerCFrame)
-
-        -- 掴む状態を1秒後に解除
-        task.delay(20, function()
-            if part and part.Parent then
-                -- 掴み解除後の処理を追加可能
-            end
-        end)
-    end
-end
-
--- オブジェクトを吹き飛ばす機能
- function applyKnockback(part)
-    if part:IsA("BasePart") then
-        local randomDirection = Vector3.new(
-            math.random(0, 0) / 0,
-            0,
-            math.random(0, 0) / 0
-        ).Unit
-
-        local force = Vector3.new(0, 50000000000, 0)
-
-        local velocity = Instance.new("BodyVelocity", part)
-        velocity.Name = "KnockbackVelocity"
-        velocity.Velocity = force
-        velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        Debris:AddItem(velocity, 1)
-    end
-end
-
-
-
- function cessAura()
-    while true do
-        local success, err = pcall(function()
-            local character = Players.LocalPlayer.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                local humanoidRootPart = character.HumanoidRootPart
-                local playerCFrame = humanoidRootPart.CFrame
-
-
-                local objects = getTargetObjects()
-                for _, obj in pairs(objects) do
-                    local distance = (obj.Position - humanoidRootPart.Position).Magnitude
-                    if distance <= auraRadius then
-                        grabObject(obj, playerCFrame)
-
-
-                        task.delay(0, function()
-                            applyKnockback(obj)
-                        end)
-                    end
-                end
-            end
-        end)
-
-        if not success then
-            warn("Error in Aura: " .. tostring(err))
-        end
-
-        wait()
-    end
-end
-
-
-ObjectTab:AddToggle({
-    Name = "オブジェクト削除オーラ",
-    Default = false,
-    Save = true,
-    Callback = function(enabled)
-        if enabled then
-            auraCoroutine = coroutine.create(cessAura)
-            coroutine.resume(auraCoroutine)
-        elseif auraCoroutine then
-            coroutine.close(auraCoroutine)
-            auraCoroutine = nil
-        end
-    end
-})
-
+ 
 AuraTab:AddToggle({
     Name = "掴むオーラ",
     Color = Color3.fromRGB(255, 255, 255),
@@ -9995,6 +9819,285 @@ local Plr = Players.LocalPlayer
     end
 })
     
+
+
+
+ function ObjectGrab()
+    while true do
+        local success, err = pcall(function()
+            local character = Players.LocalPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local humanoidRootPart = character.HumanoidRootPart
+                local playerCFrame = humanoidRootPart.CFrame
+
+                local objects = getTargetObjects()
+                for _, obj in pairs(objects) do
+                    local distance = (obj.Position - humanoidRootPart.Position).Magnitude
+                    if distance <= ObjectGrabDistance then
+                        grabObject(obj, playerCFrame)
+                    end
+                end
+            end
+        end)
+
+        if not success then
+            warn("Error in Aura: " .. tostring(err))
+        end
+
+        wait(0)
+    end
+end
+
+
+ObjectTab:AddToggle({
+    Name = "オブジェクト掴むオーラ",
+    Default = false,
+    Save = true,
+    Callback = function(enabled)
+        if enabled then
+            ObjectGrabCoroutine = coroutine.create(ObjectGrab)
+            coroutine.resume(ObjectGrabCoroutine)
+        elseif ObjectGrabCoroutine then
+            coroutine.close(ObjectGrabCoroutine)
+            ObjectGrabCoroutine = nil
+        end
+    end
+})
+
+DestroyLink = 25
+ function Destroy(part)
+    if part:IsA("BasePart") then
+        local randomDirection = Vector3.new(
+            math.random(0, 0) / 0,
+            0,
+            math.random(0, 0) / 0
+        ).Unit
+
+        local force = Vector3.new(0, 500000000, 0)
+
+        local velocity = Instance.new("BodyVelocity", part)
+        velocity.Name = "KnockbackVelocity"
+        velocity.Velocity = force
+        velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        Debris:AddItem(velocity, 1)
+    end
+end
+
+
+
+ function Objectdestoy()
+    while true do
+        local success, err = pcall(function()
+            local character = Players.LocalPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local humanoidRootPart = character.HumanoidRootPart
+                local playerCFrame = humanoidRootPart.CFrame
+
+                local objects = getTargetObjects()
+                for _, obj in pairs(objects) do
+                    local distance = (obj.Position - humanoidRootPart.Position).Magnitude
+                    if distance <= DestroyLink then
+                        grabObject(obj, playerCFrame)
+
+                        task.delay(0, function()
+                            Destroy(obj)
+                        end)
+                    end
+                end
+            end
+        end)
+
+        if not success then
+            warn("Error in Aura: " .. tostring(err))
+        end
+
+        wait(0)
+    end
+end
+
+
+
+ObjectTab:AddToggle({
+    Name = "オブジェクト削除オーラ",
+    Default = false,
+    Save = true,
+    Callback = function(enabled)
+        if enabled then
+            ObjectdestoyCoroutine = coroutine.create(Objectdestoy)
+            coroutine.resume(ObjectdestoyCoroutine)
+        elseif ObjectdestoyCoroutine then
+            coroutine.close(ObjectdestoyCoroutine)
+            ObjectdestoyCoroutine = nil
+        end
+    end
+})
+
+
+ maxHeight = 50 -- 最大高さを設定
+dropDifference = 49 -- 落下差を設定
+rotatingObjects = {} -- 回転対象のオブジェクトリスト（実際には取得方法によってここは変更する必要があります
+RingAura = 10 -- オーラの半径（実際の値に応じて変更してください）
+RingAuraHeight = 0 -- オーラの高さ（実際の値に応じて変更してください）
+
+function RotateObjects()
+     player = game.Players.LocalPlayer
+     character = player.Character or player.CharacterAdded:Wait()
+     humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local angle = 0
+
+    -- オブジェクトの回転処理
+    while true do
+        local success, err = pcall(function()
+            angle = angle + math.rad(3) -- 回転角度を増加させる
+
+            for index, obj in pairs(rotatingObjects) do
+                local offsetX = math.cos(angle + (index * 2 * math.pi / #rotatingObjects)) * RingAura
+                local offsetZ = math.sin(angle + (index * 2 * math.pi / #rotatingObjects)) * RingAura
+                
+                -- Y座標は固定値（RingAuraHeight）に設定
+                local calculatedY = RingAuraHeight 
+
+                -- 最終的なY座標が最大値を超えないように制御 (必要な場合)
+                if calculatedY > maxHeight then
+                    calculatedY = maxHeight - dropDifference
+                end
+
+                local offset = Vector3.new(offsetX, calculatedY, offsetZ)
+
+                obj.CFrame = humanoidRootPart.CFrame * CFrame.new(offset)
+            end
+        end)
+
+        if not success then
+            warn("Error in RotateObjects: " .. tostring(err))
+        end
+        
+        wait()
+    end
+end
+
+-- ローテーションを開始するためには関数を呼び出す必要があります
+-- RotateObjects() を呼び出す場所が必要です
+-- オーラ処理はそのまま
+ function ObjectAuraD()
+    while true do
+        local success, err = pcall(function()
+            local character = Players.LocalPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local humanoidRootPart = character.HumanoidRootPart
+
+                -- 対象オブジェクトを取得
+                local objects = getTargetObjects()
+
+                -- オーラ範囲内のオブジェクトに対して処理
+                for _, obj in pairs(objects) do
+                    local distance = (obj.Position - humanoidRootPart.Position).Magnitude
+                    if distance <= RingAura then
+                        -- ノークリップ処理
+                        HandleNoClip(obj)
+
+                        -- 回転オブジェクトとして追加
+                        if not table.find(rotatingObjects, obj) then
+                            table.insert(rotatingObjects, obj)
+                        end
+                    end
+                end
+            end
+        end)
+
+        if not success then
+            warn("Error in Aura: " .. tostring(err))
+        end
+
+        -- ループの間隔を短縮
+        wait()
+    end
+end
+
+-- UIの設定
+
+
+GravityToggleActive = false
+
+-- Toggle for speed
+
+
+-- Toggle for gravity
+ GravityToggle = ObjectTab:AddToggle({
+    Name = "リングが上手く行かない時はこれつけて",
+    Default = false,
+    Callback = function(state)
+        GravityToggleActive = state
+
+        if GravityToggleActive then
+            game.Workspace.Gravity = 0 -- Adjust this value to desired gravity level.
+        else
+            game.Workspace.Gravity = 100 -- Default Roblox gravity value.
+        end
+    end
+})
+
+
+-- ノークリップオーラのトグル
+ObjectTab:AddToggle({
+    Name = "(リング)ってやつオンにしてからしてね",
+    Default = false,
+   
+    Save = true,
+    Callback = function(enabled)
+        if enabled then
+            ObjectAuraDCoroutine = coroutine.create(ObjectAuraD)
+            coroutine.resume(ObjectAuraDCoroutine)
+        elseif ObjectAuraDCoroutine then
+            coroutine.close(ObjectAuraDCoroutine)
+            ObjectAuraDCoroutine = nil
+        end
+    end
+})
+
+
+-- 回転のトグル
+ObjectTab:AddToggle({
+    Name = "リング",
+    Default = false,
+    Callback = function(enabled)
+        if enabled then
+            coroutine.wrap(RotateObjects)()
+        else
+            -- 停止時のクリーンアップ
+            rotatingObjects = {}
+        end
+    end
+})
+
+-- 半径調整スライダー
+ObjectTab:AddSlider({
+    Name = "半径",
+    Min = 0,
+    Max = 25,
+    Default = 25,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 1,
+    ValueName = "Studs",
+    Callback = function(value)
+        RingAura = value
+    end
+})
+
+-- 高さ調整スライダー
+ObjectTab:AddSlider({
+    Name = "高さ ",
+    Min = -10,
+    Max = 100,
+    Default = 0,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 1,
+    ValueName = "Studs",
+    Callback = function(value)
+        RingAuraHeight = value
+    end
+})
+
 
 
 
