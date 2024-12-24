@@ -8,7 +8,16 @@ local function getScreenSize()
     return viewportSize.X, viewportSize.Y
 end
 
--- GUI作成
+-- キャラクターのすべてのBasePartをアンカー設定
+local function setAnchored(character, anchored)
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Anchored = anchored
+        end
+    end
+end
+
+-- メインGUI作成
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AnchorControlGui"
 screenGui.ResetOnSpawn = false -- リスポーン時にGUIを保持
@@ -22,6 +31,17 @@ button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- 赤色
 button.Font = Enum.Font.SourceSansBold
 button.TextSize = 14 -- 小さめのフォント
 button.Parent = screenGui
+
+-- GUI削除トグル用ボタン
+local toggleGuiButton = Instance.new("TextButton")
+toggleGuiButton.Name = "ToggleGuiButton"
+toggleGuiButton.Size = UDim2.new(0, 150, 0, 50) -- 固定サイズ
+toggleGuiButton.Position = UDim2.new(0, 10, 1, -350) -- 画面左下
+toggleGuiButton.Text = "GUI: ON"
+toggleGuiButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- 緑色
+toggleGuiButton.Font = Enum.Font.SourceSansBold
+toggleGuiButton.TextSize = 14
+toggleGuiButton.Parent = screenGui
 
 -- 初期位置を右端に設定
 local function setButtonPosition()
@@ -38,11 +58,7 @@ button.MouseButton1Click:Connect(function()
     
     -- アンカー状態を切り替え
     isAnchored = not isAnchored
-    for _, part in ipairs(character:GetDescendants()) do
-        if part:IsA("BasePart") then
-            part.Anchored = isAnchored
-        end
-    end
+    setAnchored(character, isAnchored)
     
     -- ボタンの表示を変更
     if isAnchored then
@@ -57,11 +73,7 @@ end)
 -- 新しいキャラクターが生成されたときに現在のアンカー状態を適用
 LocalPlayer.CharacterAdded:Connect(function(character)
     character:WaitForChild("HumanoidRootPart") -- キャラクターのロード完了を待つ
-    for _, part in ipairs(character:GetDescendants()) do
-        if part:IsA("BasePart") then
-            part.Anchored = isAnchored
-        end
-    end
+    setAnchored(character, isAnchored)
 end)
 
 -- 初期位置を設定
@@ -70,4 +82,22 @@ setButtonPosition()
 -- デバイスの画面サイズが変わった場合にも対応
 workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
     setButtonPosition()
+end)
+
+-- GUI削除トグルの状態を追跡
+local guiVisible = true
+
+-- GUI削除トグルボタンの動作
+toggleGuiButton.MouseButton1Click:Connect(function()
+    guiVisible = not guiVisible
+
+    if guiVisible then
+        toggleGuiButton.Text = "GUI: ON"
+        toggleGuiButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- 緑色
+        button.Visible = true -- アンカーボタンを表示
+    else
+        toggleGuiButton.Text = "GUI: OFF"
+        toggleGuiButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- 赤色
+        button.Visible = false -- アンカーボタンを非表示
+    end
 end)
