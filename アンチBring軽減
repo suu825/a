@@ -44,38 +44,90 @@ local function processAllParts()
     end
 end
 
--- トグルボタンの作成
-local ScreenGui = Instance.new("ScreenGui")
-local ToggleButton = Instance.new("TextButton")
+-- ブロブマン関連の部位や名前を削除
+local function deleteBlobmanParts()
+    for _, descendant in pairs(Workspace:GetDescendants()) do
+        if descendant.Name == "ブロブマン" then
+            descendant:Destroy()
+        end
+        if descendant.Name == "LeftDetector" or descendant.Name == "RightDetector" then
+            descendant:Destroy()
+        end
+        if descendant.Name == "BlobmanSeatAndOwnerScript" then
+            descendant:Destroy()
+        end
+    end
+end
 
-ScreenGui.Name = "ToggleGui"
-ScreenGui.Parent = CoreGui -- CoreGuiに配置
+-- GUI の作成
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local MainScreenGui = Instance.new("ScreenGui")
+MainScreenGui.Name = "MainGui"
+MainScreenGui.ResetOnSpawn = false -- リスポーン後も GUI を保持
+MainScreenGui.Parent = playerGui
 
-ToggleButton.Name = "ToggleButton"
-ToggleButton.Size = UDim2.new(0, 130, 0, 50)
-ToggleButton.Position = UDim2.new(0.5, -100, 0.5, -25)
-ToggleButton.Text = "Bring軽減　オンにする"
-ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-ToggleButton.Font = Enum.Font.SourceSansBold
-ToggleButton.TextSize = 18
-ToggleButton.Parent = ScreenGui
+-- メインフレーム作成
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 350, 0, 300) -- 幅350、高さ300
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -150) -- 中央に配置
+MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- ダークグレー
+MainFrame.Parent = MainScreenGui
 
--- ドラッグ機能
-local dragging = false
-local dragStart, startPos
+-- ブロブマン破壊ボタン
+local blobmanButton = Instance.new("TextButton")
+blobmanButton.Name = "DeleteBlobmanButton"
+blobmanButton.Size = UDim2.new(0, 150, 0, 50) -- 幅150, 高さ50
+blobmanButton.Position = UDim2.new(0, 10, 0, 10) -- 左上端から余白を持たせて配置
+blobmanButton.Text = "ブロブマン破壊"
+blobmanButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- 赤色
+blobmanButton.Font = Enum.Font.SourceSansBold
+blobmanButton.TextSize = 14
+blobmanButton.Parent = MainFrame
 
-ToggleButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = ToggleButton.Position
+-- Bring軽減ボタン（ブロブマン破壊ボタンの右隣に配置）
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.Size = UDim2.new(0, 150, 0, 50)
+toggleButton.Position = UDim2.new(0, 170, 0, 10) -- 無敵ボタンの右隣に配置
+toggleButton.Text = "Bring軽減　オンにする"
+toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextSize = 18
+toggleButton.Parent = MainFrame
+
+-- トグルボタンのクリック時の動作
+toggleButton.MouseButton1Click:Connect(function()
+    toggleEnabled = not toggleEnabled
+
+    if toggleEnabled then
+        toggleButton.Text = "Bring軽減　オン"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        processAllParts()
+    else
+        toggleButton.Text = "Bring軽減　オフ"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     end
 end)
 
-ToggleButton.InputChanged:Connect(function(input)
+-- ドラッグ機能の修正
+local dragging = false
+local dragStart, startPos
+
+-- MainFrameをドラッグ可能にする（PC用とスマホ用）
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+    end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
     if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
-        ToggleButton.Position = UDim2.new(
+        MainFrame.Position = UDim2.new(
             startPos.X.Scale,
             startPos.X.Offset + delta.X,
             startPos.Y.Scale,
@@ -84,23 +136,9 @@ ToggleButton.InputChanged:Connect(function(input)
     end
 end)
 
-ToggleButton.InputEnded:Connect(function(input)
+MainFrame.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
-    end
-end)
-
--- トグルボタンのクリック時の動作
-ToggleButton.MouseButton1Click:Connect(function()
-    toggleEnabled = not toggleEnabled
-
-    if toggleEnabled then
-        ToggleButton.Text = "Bring軽減　オン"
-        ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-        processAllParts()
-    else
-        ToggleButton.Text = "Bring軽減　オフ"
-        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     end
 end)
 
@@ -109,4 +147,9 @@ Workspace.DescendantAdded:Connect(function(part)
     if toggleEnabled then
         processPart(part)
     end
+end)
+
+-- ブロブマン破壊ボタンの動作設定
+blobmanButton.MouseButton1Click:Connect(function()
+    deleteBlobmanParts()
 end)
