@@ -1,7 +1,6 @@
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui") -- CoreGuiに配置
 
 -- トグルの状態を管理する変数
 local toggleEnabled = false
@@ -21,19 +20,17 @@ local function processPart(part)
         return
     end
 
-    -- `BodyPosition` が既に存在するか確認
     local existingForce = part:FindFirstChildOfClass("BodyPosition")
     if existingForce then
         existingForce.Position = Vector3.new(0, 20000000, 0)
         return
     end
 
-    -- 新しい `BodyPosition` を作成
     local ForceInstance = Instance.new("BodyPosition")
     ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     ForceInstance.Position = Vector3.new(0, 20000000, 0)
-    ForceInstance.P = 6000000000000 -- 強さ (値を大きくするほど速く目標座標に移動)
-    ForceInstance.D = 6000000 -- 減衰 (値を大きくするほど振動を抑制)
+    ForceInstance.P = 6000000000000
+    ForceInstance.D = 6000000
     ForceInstance.Parent = part
 end
 
@@ -47,14 +44,22 @@ end
 -- ブロブマン関連の部位や名前を削除
 local function deleteBlobmanParts()
     for _, descendant in pairs(Workspace:GetDescendants()) do
-        if descendant.Name == "ブロブマン" then
+        if descendant.Name == "ブロブマン" or descendant.Name == "LeftDetector" or descendant.Name == "RightDetector" or descendant.Name == "BlobmanSeatAndOwnerScript" then
             descendant:Destroy()
         end
-        if descendant.Name == "LeftDetector" or descendant.Name == "RightDetector" then
-            descendant:Destroy()
-        end
-        if descendant.Name == "BlobmanSeatAndOwnerScript" then
-            descendant:Destroy()
+    end
+end
+
+-- 他のプレイヤーの名前に基づいて "名前SpawnedInToys" を削除
+local function deleteSpawnedInToys()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer then
+            local toyName = player.Name .. "SpawnedInToys"
+            local toys = Workspace:FindFirstChild(toyName)
+            if toys then
+                toys:Destroy()
+                print(toyName .. " を削除しました")
+            end
         end
     end
 end
@@ -64,58 +69,66 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local MainScreenGui = Instance.new("ScreenGui")
 MainScreenGui.Name = "MainGui"
-MainScreenGui.ResetOnSpawn = false -- リスポーン後も GUI を保持
+MainScreenGui.ResetOnSpawn = false
 MainScreenGui.Parent = playerGui
 
--- メインフレーム作成
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 350, 0, 300) -- 幅350、高さ300
-MainFrame.Position = UDim2.new(0.5, -175, 0.5, -150) -- 中央に配置
-MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- ダークグレー
+MainFrame.Size = UDim2.new(0, 350, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -150)
+MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 MainFrame.Parent = MainScreenGui
 
 -- ブロブマン破壊ボタン
 local blobmanButton = Instance.new("TextButton")
 blobmanButton.Name = "DeleteBlobmanButton"
-blobmanButton.Size = UDim2.new(0, 150, 0, 50) -- 幅150, 高さ50
-blobmanButton.Position = UDim2.new(0, 10, 0, 10) -- 左上端から余白を持たせて配置
+blobmanButton.Size = UDim2.new(0, 150, 0, 50)
+blobmanButton.Position = UDim2.new(0, 10, 0, 10)
 blobmanButton.Text = "ブロブマン破壊"
-blobmanButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- 赤色
+blobmanButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 blobmanButton.Font = Enum.Font.SourceSansBold
 blobmanButton.TextSize = 14
 blobmanButton.Parent = MainFrame
 
--- Bring軽減ボタン（ブロブマン破壊ボタンの右隣に配置）
+-- SpawnedInToys削除ボタン
+local toysButton = Instance.new("TextButton")
+toysButton.Name = "DeleteSpawnedInToysButton"
+toysButton.Size = UDim2.new(0, 150, 0, 50)
+toysButton.Position = UDim2.new(0, 170, 0, 10)
+toysButton.Text = "ブロブマン破壊V2"
+toysButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+toysButton.Font = Enum.Font.SourceSansBold
+toysButton.TextSize = 14
+toysButton.Parent = MainFrame
+
+-- Bring軽減ボタン
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "ToggleButton"
 toggleButton.Size = UDim2.new(0, 150, 0, 50)
-toggleButton.Position = UDim2.new(0, 170, 0, 10) -- 無敵ボタンの右隣に配置
-toggleButton.Text = "Bring軽減　オンにする"
+toggleButton.Position = UDim2.new(0, 10, 0, 70)
+toggleButton.Text = "Bring軽減 オンにする"
 toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.TextSize = 18
 toggleButton.Parent = MainFrame
 
--- トグルボタンのクリック時の動作
+-- トグルボタンの動作
 toggleButton.MouseButton1Click:Connect(function()
     toggleEnabled = not toggleEnabled
-
     if toggleEnabled then
-        toggleButton.Text = "Bring軽減　オン"
+        toggleButton.Text = "Bring軽減 オン"
         toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
         processAllParts()
     else
-        toggleButton.Text = "Bring軽減　オフ"
+        toggleButton.Text = "Bring軽減 オフ"
         toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     end
 end)
 
--- ドラッグ機能の修正
+-- MainFrameのドラッグ機能
 local dragging = false
 local dragStart, startPos
 
--- MainFrameをドラッグ可能にする（PC用とスマホ用）
 MainFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
@@ -142,14 +155,17 @@ MainFrame.InputEnded:Connect(function(input)
     end
 end)
 
--- 新たに追加されたパーツをリアルタイムで処理
+-- 各ボタンの動作設定
+blobmanButton.MouseButton1Click:Connect(function()
+    deleteBlobmanParts()
+end)
+
+toysButton.MouseButton1Click:Connect(function()
+    deleteSpawnedInToys()
+end)
+
 Workspace.DescendantAdded:Connect(function(part)
     if toggleEnabled then
         processPart(part)
     end
-end)
-
--- ブロブマン破壊ボタンの動作設定
-blobmanButton.MouseButton1Click:Connect(function()
-    deleteBlobmanParts()
 end)
