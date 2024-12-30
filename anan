@@ -9,6 +9,136 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
 local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
 
+
+
+
+ Players = game:GetService("Players")
+ Workspace = game:GetService("Workspace")
+ LocalPlayer = Players.LocalPlayer
+
+ trackedBlobman = nil -- 現在追跡しているBlobman
+ autoMountEnabled = false -- Toggle状態を追跡
+ spawnedInToysConnection = nil -- SpawnedInToysフォルダの監視
+
+-- 自分の "SpawnedInToys" フォルダを取得
+ function findMySpawnedInToys()
+    local toyName = LocalPlayer.Name .. "SpawnedInToys"
+    return Workspace:FindFirstChild(toyName)
+end
+
+-- Blobmanに座る処理
+ function attemptMount(blobman)
+    if blobman and blobman:FindFirstChild("VehicleSeat") then
+         vehicleSeat = blobman.VehicleSeat
+        if not vehicleSeat:FindFirstChild("SeatWeld") then
+            -- テレポートして座る
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = blobman.VehicleSeat.CFrame + Vector3.new(0, 2, 0)
+            end
+             prompt = vehicleSeat:FindFirstChildOfClass("ProximityPrompt")
+            if prompt then
+                fireproximityprompt(prompt)
+    
+            end
+        end
+    end
+end
+
+-- Blobmanを追跡開始
+ function startTracking(blobman)
+    if blobman then
+       
+        trackedBlobman = blobman
+
+        -- Blobmanが削除された場合の監視
+        blobman.AncestryChanged:Connect(function(_, parent)
+            if not parent and autoMountEnabled then
+         
+                trackedBlobman = nil
+            end
+        end)
+
+        -- 座る処理をループ
+        spawn(function()
+            while autoMountEnabled and trackedBlobman and trackedBlobman.Parent do
+                pcall(function()
+                    attemptMount(trackedBlobman)
+                end)
+                wait() -- 座る処理の間隔
+            end
+        end)
+    end
+end
+
+-- 新しいBlobmanを探して追跡を開始
+ function findAndTrackBlobman()
+     spawnedInToys = findMySpawnedInToys()
+    if spawnedInToys then
+        for _, child in ipairs(spawnedInToys:GetChildren()) do
+            if child.Name == "CreatureBlobman" and child ~= trackedBlobman then
+                startTracking(child)
+                return
+            end
+        end
+    end
+end
+
+-- SpawnedInToysフォルダの監視
+ function monitorSpawnedInToys()
+    local spawnedInToys = findMySpawnedInToys()
+    if spawnedInToys then
+        -- フォルダ内の新しいBlobmanを監視
+        spawnedInToysConnection = spawnedInToys.ChildAdded:Connect(function(child)
+            if child.Name == "CreatureBlobman" then
+                
+                startTracking(child)
+            end
+        end)
+    end
+end
+
+-- プレイヤーがリスポーンした際にBlobmanに再度座る処理
+ function onPlayerRespawn()
+    LocalPlayer.CharacterAdded:Connect(function(newCharacter)
+      
+        wait() -- キャラクターが完全にロードされるまで待機
+
+        -- 最後に追跡していたBlobmanがまだ存在する場合に再度座る
+        if trackedBlobman and trackedBlobman.Parent then
+            attemptMount(trackedBlobman)
+        else
+            -- 最後のBlobmanがない場合、新しいBlobmanを探す
+            findAndTrackBlobman()
+        end
+    end)
+end
+
+-- 自動追跡の開始と停止
+ function autoMountBlobman(enabled)
+    autoMountEnabled = enabled
+    if enabled then
+       
+
+        -- リスポーン対応とフォルダ監視を開始
+        onPlayerRespawn()
+        monitorSpawnedInToys()
+
+        -- 初期のBlobmanを探す
+        if not trackedBlobman then
+            findAndTrackBlobman()
+        end
+    else
+        -- 停止処理
+        if spawnedInToysConnection then
+            spawnedInToysConnection:Disconnect()
+            spawnedInToysConnection = nil
+        end
+        trackedBlobman = nil
+       
+    end
+end
+
+
 -- オーラの設定
 
  auraCoroutine = nil
@@ -21,7 +151,7 @@ local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
  rotatingObjects = {}
 
 -- オブジェクトをノークリップ状態にする処理
-local function HandleNoClip(part)
+ function HandleNoClip(part)
     if part:IsA("BasePart") then
         -- ノークリップ設定qjsp
         part.CanCollide = true
@@ -2865,69 +2995,11 @@ BlobmanTab:AddToggle({
 })
 
 
- function findBlobman()
-    for _, v in pairs(Workspace:GetDescendants()) do
-        if v.Name == "CreatureBlobman" then
-            if v:FindFirstChild("VehicleSeat") and v.VehicleSeat:FindFirstChild("SeatWeld") and v.VehicleSeat.SeatWeld.Part1:IsDescendantOf(localPlayer.Character) then
-                return v 
-            end
-        end
-    end
-    return nil 
-end
-
 BlobmanTab:AddToggle({
     Name = "自動お座り",
     Default = false,
     Callback = function(enabled)
-        if enabled then
-            autoMountCoroutine = coroutine.create(function()
-                while true do
-                    pcall(function()
-                        local blobmanMounted = false
-                        for _, v in pairs(game.Workspace:GetDescendants()) do
-                            if v.Name == "CreatureBlobman" then
-                                local vehicleSeat = v:FindFirstChild("VehicleSeat")
-                                if vehicleSeat and vehicleSeat:FindFirstChild("SeatWeld") then
-                                    local seatWeld = vehicleSeat.SeatWeld
-                                    if seatWeld.Part1 and seatWeld.Part1:IsDescendantOf(localPlayer.Character) then
-                                        blobmanMounted = true
-                                        break
-                                    end
-                                end
-                            end
-                        end
-                        
-                        if not blobmanMounted then
-                            for _, v in pairs(game.Workspace:GetDescendants()) do
-                                if v.Name == "CreatureBlobman" then
-                                    local vehicleSeat = v:FindFirstChild("VehicleSeat")
-                                    if vehicleSeat and not vehicleSeat:FindFirstChild("SeatWeld") then
-                                        
-                                        localPlayer.Character:MoveTo(vehicleSeat.Position + Vector3.new(0, 1, 0))
-                                        
-                                        
-                                        local prompt = vehicleSeat:FindFirstChildOfClass("ProximityPrompt")
-                                        if prompt then
-                                            fireproximityprompt(prompt)
-                                        end
-                                        break
-                                    end
-                                end
-                            end
-                        end
-                    end)
-                    wait(0.1)
-                end
-            end)
-            coroutine.resume(autoMountCoroutine)
-        else
-            if autoMountCoroutine then
-                coroutine.close(autoMountCoroutine)
-                autoMountCoroutine = nil
-                print("Auto Mount Blobman Disabled")
-            end
-        end
+        autoMountBlobman(enabled)
     end
 })
 
@@ -9632,11 +9704,7 @@ KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 
-PATab:AddLabel("クレイジーラインV2追加")
-PATab:AddLabel("無敵突破追加")
-PATab:AddLabel("無敵追加")
-PATab:AddLabel("無敵オンを追加")
-PATab:AddLabel("無敵オフを追加")
+PATab:AddLabel("自動お座り修正")
 
 
 
