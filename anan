@@ -2315,16 +2315,17 @@ DefenseTab:AddToggle({
 })
 
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
+Players = game:GetService("Players")
+ RunService = game:GetService("RunService")
+ Workspace = game:GetService("Workspace")
 
-local enabled = false -- トグルの状態を管理
-local connections = {} -- イベント接続を管理
-local range = 900 -- 雪玉を無効化する範囲（デフォルトは50）
+ LocalPlayer = Players.LocalPlayer
+ enabled = false
+ range = 38888888888888888888888888888 -- 無効化する範囲
+ connections = {}
 
 -- 部位やパーツを無効化する関数
-local function disablePart(part)
+ function disablePart(part)
     if part:IsA("BasePart") then
         part.CanTouch = false
         part.CanCollide = false
@@ -2335,78 +2336,82 @@ local function disablePart(part)
 end
 
 -- 雪玉や SoundPart を無効化する関数
-local function handleSpecialPart(part)
+ function handleSpecialPart(part)
     if part:IsA("Model") and (part.Name == "BallSnowball" or part.Name == "SoundPart") then
-        for _, descendant in pairs(part:GetDescendants()) do
+        for _, descendant in ipairs(part:GetDescendants()) do
             disablePart(descendant)
         end
-    
     end
 end
 
 -- 特定の範囲内の Snowball や SoundPart を無効化
-local function handleSpecialPartsInRange(center, range)
-    for _, obj in pairs(workspace:GetDescendants()) do
+ function handleSpecialPartsInRange(center)
+    for _, obj in ipairs(Workspace:GetDescendants()) do
         if obj:IsA("Model") and (obj.Name == "BallSnowball" or obj.Name == "SoundPart") then
             local primaryPart = obj.PrimaryPart or obj:FindFirstChildOfClass("BasePart")
             if primaryPart and (primaryPart.Position - center).Magnitude <= range then
-                handleSpecialPart(obj)
+                task.defer(handleSpecialPart, obj)
             end
         end
     end
 end
 
--- 0.01秒ごとに範囲内の Snowball や SoundPart を無効化
-local function setupRepeatingHandler()
+-- 高速無効化処理を設定
+ function setupFastHandler()
+    local lastProcessed = tick()
     local connection = RunService.Heartbeat:Connect(function()
-        if enabled then
-            local center = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart").Position or Vector3.zero
-            handleSpecialPartsInRange(center, range)
+        if enabled and LocalPlayer.Character then
+            local humanoidRootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                -- 処理間隔を調整してフレームレートを超える速度で処理
+                if tick() - lastProcessed > (1 / 500) then
+                    handleSpecialPartsInRange(humanoidRootPart.Position)
+                    lastProcessed = tick()
+                end
+            end
         end
     end)
     table.insert(connections, connection)
 end
 
 -- 新しい Snowball や SoundPart を監視して無効化
-local function setupSpecialPartListener()
-    local connection = workspace.DescendantAdded:Connect(function(descendant)
+ function setupSpecialPartListener()
+    local connection = Workspace.DescendantAdded:Connect(function(descendant)
         if enabled and descendant:IsA("Model") and (descendant.Name == "BallSnowball" or descendant.Name == "SoundPart") then
-            wait() -- 0.01秒後に確認
-            handleSpecialPart(descendant)
+            task.defer(handleSpecialPart, descendant)
         end
     end)
     table.insert(connections, connection)
 end
 
 -- キャラクターの部位を無効化
-local function disableCharacterCollision(character)
-    for _, part in pairs(character:GetDescendants()) do
+ function disableCharacterCollision(character)
+    for _, part in ipairs(character:GetDescendants()) do
         if part:IsA("BasePart") then
             part.CanTouch = false
             part.CanCollide = false
         end
     end
-  
 end
 
 -- 新しいキャラクターが生成されたときに設定を適用
-local function setupCharacterListener()
+ function setupCharacterListener()
     LocalPlayer.CharacterAdded:Connect(function(character)
-        character:WaitForChild("HumanoidRootPart") -- キャラクターが完全にロードされるまで待機
+        character:WaitForChild("HumanoidRootPart")
         disableCharacterCollision(character)
     end)
 end
 
 -- 既存のキャラクターに設定を適用
-local function handleExistingCharacter()
+ function handleExistingCharacter()
     if LocalPlayer.Character then
         disableCharacterCollision(LocalPlayer.Character)
     end
 end
 
 -- イベントリスナーを解除
-local function clearConnections()
-    for _, connection in pairs(connections) do
+ function clearConnections()
+    for _, connection in ipairs(connections) do
         if connection.Connected then
             connection:Disconnect()
         end
@@ -2415,24 +2420,24 @@ local function clearConnections()
 end
 
 
-
 DefenseTab:AddToggle({
     Name = "アンチ雪玉",
     Default = false,
     Callback = function(state)
         enabled = state
         if enabled then
-           
             handleExistingCharacter() -- 現在のキャラクターを無効化
             setupCharacterListener() -- 新しいキャラクターの監視
-            setupRepeatingHandler() -- 0.01秒ごとの処理
+            setupFastHandler() -- 高速処理を設定
             setupSpecialPartListener() -- 新しい雪玉や SoundPart の監視
         else
-       
             clearConnections() -- イベントリスナーを解除
         end
     end
 })
+
+
+
 
 DefenseTab:AddToggle({
     Name = "アンチ爆発",
