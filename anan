@@ -1185,6 +1185,7 @@ OrionLib:MakeNotification({
 local GrabTab = Window:MakeTab({Name = "掴む", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
 local arasuTab = Window:MakeTab({Name = "荒らす用", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
 local GTab = Window:MakeTab({Name = "リンク", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
+local freezeATab = Window:MakeTab({Name = "無敵突破", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
 local DefenseTab = Window:MakeTab({Name = "アンチ", Icon =  "rbxassetid://129017321982695", PremiumOnly = false})
 local BlobmanTab = Window:MakeTab({Name = "ブロブマン掴む", Icon =  "rbxassetid://88840235976282", PremiumOnly = false})
 local ServerTab = Window:MakeTab({Name = "ラグサーバー", Icon = "rbxassetid://4483345998", PremiumOnly = false})
@@ -10171,6 +10172,152 @@ ObjectTab:AddSlider({
     end
 })
 
+
+
+ localPlayer = game.Players.LocalPlayer
+ playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+
+localPlayer.CharacterAdded:Connect(function(character)
+    playerCharacter = character
+end)
+
+ toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
+ autoEnabled = false
+ targetPlayerName = ""
+
+-- ランダムなベクトルを生成
+ function getRandomVector(min, max)
+    return Vector3.new(
+        math.random(min, max),
+        math.random(min, max),
+        math.random(min, max)
+    )
+end
+
+
+ function spawnSnowball()
+    task.spawn(function()
+        local rotation = Vector3.new(0, 0, 0)
+        local success, err = pcall(function()
+            game:GetService("ReplicatedStorage").MenuToys.SpawnToyRemoteFunction:InvokeServer("BallSnowball", playerCharacter.Head.CFrame, rotation)
+        end)
+        if success then
+
+        end
+    end)
+end
+
+-- BallSnowballを検索
+ function findSnowball()
+    if not toysFolder then
+        toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
+    end
+
+    if toysFolder then
+        for _, item in pairs(toysFolder:GetChildren()) do
+            if item.Name == "BallSnowball" then
+                return item
+            end
+        end
+    end
+
+    return nil
+end
+
+-- ターゲットに正確にテレポートして荒ぶらせる
+ function teleportAndShake(item, targetPlayer)
+    if item and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        -- ターゲットの位置を取得
+        local targetPos = targetPlayer.Character.HumanoidRootPart.Position
+        -- Snowballの位置をターゲットに設定
+        item.CFrame = CFrame.new(targetPos)
+        
+        -- 荒ぶる動きを設定
+        item.AssemblyLinearVelocity = getRandomVector(-100, 100)
+        item.AssemblyAngularVelocity = getRandomVector(-50, 50)
+        
+    end
+end
+
+-- 自動追尾処理
+ function autoTeleportAndShake()
+    while autoEnabled do
+        pcall(function()
+            local snowball = findSnowball()
+            if not snowball then
+               
+                spawnSnowball()
+                wait() -- スポーン待ち
+            else
+                for _, child in pairs(snowball:GetChildren()) do
+                    if child:IsA("BasePart") then
+                        local targetPlayer = game.Players:FindFirstChild(targetPlayerName)
+                        if targetPlayer then
+                            teleportAndShake(child, targetPlayer)
+                        end
+                    end
+                end
+            end
+        end)
+        wait() -- 更新間隔
+    end
+end
+
+-- トグル機能
+ function toggleAutoTeleportAndShake(enabled)
+    autoEnabled = enabled
+    if enabled then
+
+        task.spawn(autoTeleportAndShake)
+    
+    end
+end
+
+-- プレイヤーリストの取得
+ function getPlayerList()
+    local playerList = {}
+    for _, player in pairs(game.Players:GetPlayers()) do
+        table.insert(playerList, player.Name .. " (" .. player.DisplayName .. ")")
+    end
+    return playerList
+end
+
+-- ターゲットプレイヤーを設定
+ function updateTargetPlayer(selected)
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if selected == player.Name .. " (" .. player.DisplayName .. ")" then
+            targetPlayerName = player.Name
+            break
+        end
+    end
+end
+
+
+freezeATab:AddDropdown({
+    Name = "プレイヤーを選択",
+    Default = "",
+    Options = getPlayerList(),
+    Callback = function(selected)
+        updateTargetPlayer(selected)
+    end,
+    AllowCustom = false
+})
+
+task.spawn(function()
+    while true do
+        task.wait(0)
+        local dropdown = MainTab:GetElement("プレイヤーを選択")
+        dropdown:SetOptions(getPlayerList())
+    end
+end)
+
+freezeATab:AddToggle({
+    Name = "自動無敵突破",
+    Default = false,
+    Callback = function(enabled)
+        toggleAutoTeleportAndShake(enabled)
+    end
+})
 
 
 
