@@ -15,7 +15,7 @@ if player.Name == "Username" then
     print("Whitelisted")
      elseif player.Name == "gegdgmvs353535" then
     print("Whitelisted")
-     elseif player.Name == "" then
+     elseif player.Name == "lIl_kuuki0ykluv" then
     print("Whitelisted")
      elseif player.Name == "" then
     print("Whitelisted")
