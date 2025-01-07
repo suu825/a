@@ -1190,6 +1190,7 @@ local GrabTab = Window:MakeTab({Name = "掴む", Icon =  "rbxassetid://735704318
 local arasuTab = Window:MakeTab({Name = "荒らす用", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
 local GTab = Window:MakeTab({Name = "リンク", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
 local freezeATab = Window:MakeTab({Name = "無敵突破", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
+local ESPTab = Window:MakeTab({Name = "ESP", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
 local DefenseTab = Window:MakeTab({Name = "アンチ", Icon =  "rbxassetid://129017321982695", PremiumOnly = false})
 local BlobmanTab = Window:MakeTab({Name = "ブロブマン掴む", Icon =  "rbxassetid://88840235976282", PremiumOnly = false})
 local ServerTab = Window:MakeTab({Name = "ラグサーバー", Icon = "rbxassetid://4483345998", PremiumOnly = false})
@@ -10453,5 +10454,80 @@ freezeATab:AddToggle({
         end
     end
 })
+
+
+-- ESP関数
+ function esp(p, cr)
+    if not ESPEnabled then return end -- 無効時は終了
+    local h = cr:WaitForChild("Humanoid")
+    local hrp = cr:WaitForChild("HumanoidRootPart")
+    local text = Drawing.new("Text")
+    text.Visible = false
+    text.Center = true
+    text.Outline = true
+    text.Font = 2
+    text.Color = Color3.fromRGB(255, 255, 255)
+    text.Size = 17
+
+    local c1, c2, c3
+    local function cleanup()
+        text.Visible = false
+        text:Remove()
+        if c1 then c1:Disconnect() c1 = nil end
+        if c2 then c2:Disconnect() c2 = nil end
+        if c3 then c3:Disconnect() c3 = nil end
+    end
+
+    c1 = game:GetService("RunService").RenderStepped:Connect(function()
+        if not ESPEnabled then cleanup() return end
+        local hrp_pos, hrp_on_screen = workspace.CurrentCamera:WorldToViewportPoint(hrp.Position)
+        if hrp_on_screen then
+            text.Position = Vector2.new(hrp_pos.X, hrp_pos.Y)
+            text.Text = string.format("%s (%.1f m)", p.Name, (hrp.Position - workspace.CurrentCamera.CFrame.Position).Magnitude)
+            text.Visible = true
+        else
+            text.Visible = false
+        end
+    end)
+
+    c2 = cr.AncestryChanged:Connect(function(_, parent)
+        if not parent then cleanup() end
+    end)
+
+    c3 = h.HealthChanged:Connect(function(health)
+        if health <= 0 then cleanup() end
+    end)
+end
+
+-- プレイヤー追加処理
+ function playerAdded(p)
+    if p.Character then
+        esp(p, p.Character)
+    end
+    p.CharacterAdded:Connect(function(cr)
+        esp(p, cr)
+    end)
+end
+
+-- トグル作成
+ESPTab:AddToggle({
+    Name = "ESP",
+    Default = false,
+    Callback = function(state)
+        ESPEnabled = state
+        if ESPEnabled then
+            -- プレイヤーにESPを適用
+            for _, p in ipairs(game:GetService("Players"):GetPlayers()) do
+                if p ~= game:GetService("Players").LocalPlayer then
+                    playerAdded(p)
+                end
+            end
+            game:GetService("Players").PlayerAdded:Connect(playerAdded)
+            
+        end
+    end
+})
+
+
 OrionLib:MakeNotification({Name = "a", Content = "a", Image = "rbxassetid://4483345998", Time = 5})
 OrionLib:Init()
