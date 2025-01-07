@@ -1191,6 +1191,7 @@ local arasuTab = Window:MakeTab({Name = "荒らす用", Icon =  "rbxassetid://73
 local GTab = Window:MakeTab({Name = "リンク", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
 local freezeATab = Window:MakeTab({Name = "無敵突破", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
 local ESPTab = Window:MakeTab({Name = "ESP", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
+local hakaTab = Window:MakeTab({Name = "ブロブマン破壊", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
 local DefenseTab = Window:MakeTab({Name = "アンチ", Icon =  "rbxassetid://129017321982695", PremiumOnly = false})
 local BlobmanTab = Window:MakeTab({Name = "ブロブマン掴む", Icon =  "rbxassetid://88840235976282", PremiumOnly = false})
 local ServerTab = Window:MakeTab({Name = "ラグサーバー", Icon = "rbxassetid://4483345998", PremiumOnly = false})
@@ -10515,6 +10516,50 @@ ESPTab:AddToggle({
             end
             game:GetService("Players").PlayerAdded:Connect(playerAdded)
             
+        end
+    end
+})
+Workspace = game:GetService("Workspace")
+ Players = game:GetService("Players")
+ LocalPlayer = Players.LocalPlayer -- 自分のプレイヤー
+
+
+
+-- 🎯 ワークスペース内で CreatureBlobman をループして削除
+ function deleteAllBlobmenFromWorkspace()
+    while toggleEnabled do
+        for _, folder in pairs(Workspace:GetChildren()) do
+            -- フォルダ名に "SpawnedInToys" を含んでいるかチェック
+            if folder.Name:match("SpawnedInToys") then
+                -- プレイヤー名を抽出（フォルダ名から "SpawnedInToys" を取り除く）
+                local playerName = folder.Name:gsub("SpawnedInToys", "")
+                
+                -- 自分のフォルダをスキップ
+                if playerName == LocalPlayer.Name then
+                    
+                else
+                    -- SpawnedInToys 内の CreatureBlobman を削除
+                    local creatureBlobman = folder:FindFirstChild("CreatureBlobman")
+                    if creatureBlobman then
+                        creatureBlobman:Destroy()
+                        
+                    end
+                end
+            end
+        end
+        wait(0.01) -- 処理間隔（1秒ごとにチェック）
+    end
+end
+
+hakaTab:AddToggle({
+    Name = "ブロブマン破壊",
+    Default = false,
+    Callback = function(enabled)
+        toggleEnabled = enabled
+        if toggleEnabled then
+            
+            task.spawn(deleteAllBlobmenFromWorkspace) -- トグルが有効化されたら開始
+       
         end
     end
 })
