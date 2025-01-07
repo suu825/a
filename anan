@@ -10331,10 +10331,10 @@ for _, player in ipairs(Players:GetPlayers()) do
     table.insert(playerNames, player.Name)
 end
 
- Bring
-
- PlayerDropdown = freezeATab:AddDropdown({
-    Name = "Bringしたいプレイヤーを選ぶ(ブロブマンなし),
+local Bring
+ 
+local PlayerDropdown = freezeATab:AddDropdown({
+    Name = "Bringしたいプレイヤーを選ぶ(ブロブマンなし)",
     Options = playerNames,
     Callback = function(selected)
         Bring = selected  -- Store the selected player name
@@ -10391,7 +10391,7 @@ for _, player in ipairs(Players:GetPlayers()) do
     table.insert(playerNames, player.Name)
 end
 
- FreezeP
+local FreezeP
 
 
  PlayerDropdown = freezeATab:AddDropdown({
