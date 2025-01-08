@@ -10565,5 +10565,79 @@ hakaTab:AddToggle({
 })
 
 
+ Players = game:GetService("Players")
+ camera = workspace.CurrentCamera
+
+-- 現在のターゲットプレイヤー
+local targetPlayerName = nil
+
+
+-- プレイヤーリストを取得する関数
+ function getPlayerList()
+    local playerNames = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    return playerNames
+end
+
+-- 視点を開始する関数
+ function startViewing(targetPlayer)
+    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        isViewing = true
+        camera.CameraType = Enum.CameraType.Custom -- カメラ操作を有効化
+        camera.CameraSubject = targetPlayer.Character.Humanoid -- プレイヤーの胴体に追従
+            end
+end
+
+-- 視点を停止する関数
+ function stopViewing()
+    isViewing = false
+    camera.CameraType = Enum.CameraType.Custom -- カメラをローカルプレイヤーに戻す
+    camera.CameraSubject = Players.LocalPlayer.Character.Humanoid -- ローカルプレイヤーの胴体に戻す
+ 
+end
+
+
+
+-- プレイヤーリスト表示用のドロップダウン
+ESPTab:AddDropdown({
+    Name = "プレイヤーを選択",
+    Default = "",
+    Options = getPlayerList(),
+    Callback = function(selectedPlayer)
+        targetPlayerName = selectedPlayer
+        print("Selected player: " .. targetPlayerName)
+    end
+})
+
+-- トグルで視点切り替え
+ESPTab:AddToggle({
+    Name = "プレイヤーの視点をみる",
+    Default = false,
+    Callback = function(value)
+        if value and targetPlayerName then
+            local targetPlayer = Players:FindFirstChild(targetPlayerName)
+            if targetPlayer then
+                startViewing(targetPlayer)
+            else
+                print("Target player not found!")
+            end
+        elseif not value then
+            stopViewing()
+        end
+    end
+})
+
+-- プレイヤーリストをリアルタイム更新
+Players.PlayerAdded:Connect(function()
+    Tab:UpdateDropdown("Select Player", getPlayerList())
+end)
+
+Players.PlayerRemoving:Connect(function()
+    Tab:UpdateDropdown("Select Player", getPlayerList())
+end)
+
+
 OrionLib:MakeNotification({Name = "a", Content = "a", Image = "rbxassetid://4483345998", Time = 5})
 OrionLib:Init()
