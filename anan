@@ -1519,6 +1519,35 @@ end
 })
 
 ServerTab:AddToggle({
+    Name = "遅いラグサーバー", -- Toggle name set to "Crazy Line"
+    Default = false, -- Default state is "off"
+    Callback = function(state) -- Function called when toggle state changes
+        runnina = runnina -- Save toggle state to "running" variable
+
+        if runnina then -- If toggle is "on"
+            coroutine.wrap(function() -- Create a new coroutine
+                while running do -- Execute loop while "running" is true
+                    for i = 750, 6500 do -- Loop from 1 to 5
+                        local players = game:GetService("Players"):GetPlayers() -- Get player list
+                        if #players > 0 then
+                            local randomPlayer = players[math.random(2, #players)] -- Select a random player
+                            game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
+                                randomPlayer.Character and randomPlayer.Character:FindFirstChild("HumanoidRootPart") or nil, -- Get player's HumanoidRootPart
+                                CFrame.new(0, 0, 0) -- Set static coordinate (changeable)
+                            )
+                        end
+                    end
+                    wait(10) -- Wait before next loop iteration
+                end
+            end)() -- Start coroutine
+        else -- If toggle is "off"
+            -- Optionally handle stopping logic here (cleanup or stopping any ongoing actions)
+        end
+    end
+})
+
+
+ServerTab:AddToggle({
     Name = "クレイジーライン", -- Toggle name set to "Crazy Line"
     Default = false, -- Default state is "off"
     Callback = function(state) -- Function called when toggle state changes
