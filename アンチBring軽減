@@ -1,1 +1,213 @@
+-- 必要なサービス
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 
+-- トグルの状態を管理する変数
+local toggleBringEnabled = false
+local flingEnabled = false
+local flingCoroutine = nil -- Fling処理を管理するコルーチン
+
+-- Bring軽減の処理
+local function processPart(part)
+    local character = Players.LocalPlayer.Character
+    if not toggleBringEnabled or not character or not character:FindFirstChild("Head") or not part:IsA("BasePart") then
+        return
+    end
+
+    if part.Anchored or part:IsDescendantOf(character) then
+        return
+    end
+
+    if part.Name == "Torso" or part.Name == "Head" or part.Name == "Right Arm" or part.Name == "Left Arm" or
+       part.Name == "Right Leg" or part.Name == "Left Leg" or part.Name == "HumanoidRootPart" then
+        return
+    end
+
+    if not part:FindFirstChildOfClass("BodyPosition") then
+        local ForceInstance = Instance.new("BodyPosition")
+        ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        ForceInstance.Position = Vector3.new(0, 20000000, 0)
+        ForceInstance.P = 6000000000000
+        ForceInstance.D = 6000000
+        ForceInstance.Parent = part
+    end
+end
+
+-- 初期ロード時にすべてのパーツを処理
+local function processAllParts()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        processPart(part)
+    end
+end
+
+-- Bring軽減停止時のクリーンアップ
+local function cleanupBringReduction()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        local existingForce = part:FindFirstChildOfClass("BodyPosition")
+        if existingForce then
+            existingForce:Destroy()
+        end
+    end
+end
+
+-- ブロブマン破壊
+local function deleteBlobmanParts()
+    for _, descendant in pairs(Workspace:GetDescendants()) do
+        if descendant.Name == "ブロブマン" or descendant.Name == "LeftDetector" or descendant.Name == "RightDetector" or descendant.Name == "BlobmanSeatAndOwnerScript" then
+            descendant:Destroy()
+        end
+    end
+end
+
+-- 他のプレイヤーの "SpawnedInToys" を削除
+local function deleteSpawnedInToys()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer then
+            local toyName = player.Name .. "SpawnedInToys"
+            local toys = Workspace:FindFirstChild(toyName)
+            if toys then
+                toys:Destroy()
+              
+            end
+        end
+    end
+end
+
+-- Flingの処理
+local flingPower = 200000
+local function flingAllParts()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") and not part.Anchored then
+            local force = Instance.new("BodyAngularVelocity")
+            force.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+            force.AngularVelocity = Vector3.new(
+                math.random(-flingPower, flingPower),
+                math.random(-flingPower, flingPower),
+                math.random(-flingPower, flingPower)
+            )
+            force.Parent = part
+            task.delay(0.5, function()
+                if force and force.Parent then
+                    force:Destroy()
+                end
+            end)
+        end
+    end
+end
+
+-- トグル処理を安全に停止する関数
+local function stopFling()
+    flingEnabled = false
+    if flingCoroutine then
+        coroutine.close(flingCoroutine)
+        flingCoroutine = nil
+    end
+end
+
+-- GUI の作成
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local MainScreenGui = Instance.new("ScreenGui")
+MainScreenGui.Name = "MainGui"
+MainScreenGui.ResetOnSpawn = false
+MainScreenGui.Parent = playerGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 350, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -150)
+MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+MainFrame.Active = true
+MainFrame.Draggable = true -- GUIをドラッグ可能にする
+MainFrame.Parent = MainScreenGui
+
+-- ブロブマン破壊ボタン
+local blobmanButton = Instance.new("TextButton")
+blobmanButton.Name = "DeleteBlobmanButton"
+blobmanButton.Size = UDim2.new(0, 150, 0, 50)
+blobmanButton.Position = UDim2.new(0, 10, 0, 10)
+blobmanButton.Text = "ブロブマン破壊"
+blobmanButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+blobmanButton.Font = Enum.Font.SourceSansBold
+blobmanButton.TextSize = 14
+blobmanButton.Parent = MainFrame
+
+-- SpawnedInToys削除ボタン
+local toysButton = Instance.new("TextButton")
+toysButton.Name = "DeleteSpawnedInToysButton"
+toysButton.Size = UDim2.new(0, 150, 0, 50)
+toysButton.Position = UDim2.new(0, 170, 0, 10)
+toysButton.Text = "ブロブマン破壊V2"
+toysButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+toysButton.Font = Enum.Font.SourceSansBold
+toysButton.TextSize = 14
+toysButton.Parent = MainFrame
+
+-- Bring軽減ボタン
+local toggleBringButton = Instance.new("TextButton")
+toggleBringButton.Name = "ToggleBringButton"
+toggleBringButton.Size = UDim2.new(0, 150, 0, 50)
+toggleBringButton.Position = UDim2.new(0, 10, 0, 70)
+toggleBringButton.Text = "Bring軽減 オンにする"
+toggleBringButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+toggleBringButton.Font = Enum.Font.SourceSansBold
+toggleBringButton.TextSize = 18
+toggleBringButton.Parent = MainFrame
+
+-- 全方向Flingボタン
+local flingButton = Instance.new("TextButton")
+flingButton.Name = "FlingButton"
+flingButton.Size = UDim2.new(0, 150, 0, 50)
+flingButton.Position = UDim2.new(0, 170, 0, 70)
+flingButton.Text = "アンチリスキル オフ"
+flingButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+flingButton.Font = Enum.Font.SourceSansBold
+flingButton.TextSize = 18
+flingButton.Parent = MainFrame
+
+-- Bring軽減ボタンの動作
+toggleBringButton.MouseButton1Click:Connect(function()
+    toggleBringEnabled = not toggleBringEnabled
+    if toggleBringEnabled then
+        toggleBringButton.Text = "Bring軽減 オン"
+        toggleBringButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        processAllParts() -- Bring軽減を適用
+    else
+        toggleBringButton.Text = "Bring軽減 オフ"
+        toggleBringButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        cleanupBringReduction() -- Bring軽減をリセット
+    end
+end)
+
+-- 全方向Flingボタンの動作
+flingButton.MouseButton1Click:Connect(function()
+    if flingEnabled then
+        flingEnabled = false
+        flingButton.Text = "アンチリスキル オフ"
+        flingButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        stopFling() -- 安全に停止
+    else
+        flingEnabled = true
+        flingButton.Text = "アンチリスキル オン"
+        flingButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+
+        -- Flingを実行
+        flingCoroutine = coroutine.create(function()
+            while flingEnabled do
+                flingAllParts()
+                wait(0.5) -- 短い間隔でFlingを繰り返し実行
+            end
+        end)
+        coroutine.resume(flingCoroutine)
+    end
+end)
+
+-- 各ボタンの動作設定
+blobmanButton.MouseButton1Click:Connect(function()
+    deleteBlobmanParts()
+end)
+
+toysButton.MouseButton1Click:Connect(function()
+    deleteSpawnedInToys()
+end)
