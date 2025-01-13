@@ -1,6 +1,6 @@
 
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/suu825/a/refs/heads/main/%E3%83%9B%E3%83%AF"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/suu825/a/refs/heads/main/w"))()
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
