@@ -13,6 +13,102 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
 local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
 
+Workspace = game:GetService("Workspace")
+ Players = game:GetService("Players")
+
+local flingCoroutine = nil -- Fling処理を管理するコルーチン
+
+-- OrionLibのロード
+
+-- Bring軽減の処理
+ function processPart(part)
+    local character = Players.LocalPlayer.Character
+    if not toggleBringEnabled or not character or not character:FindFirstChild("Head") or not part:IsA("BasePart") then
+        return
+    end
+
+    if part.Anchored or part:IsDescendantOf(character) then
+        return
+    end
+
+    if part.Name == "Torso" or part.Name == "Head" or part.Name == "Right Arm" or part.Name == "Left Arm" or
+       part.Name == "Right Leg" or part.Name == "Left Leg" or part.Name == "HumanoidRootPart" then
+        return
+    end
+
+    if not part:FindFirstChildOfClass("BodyPosition") then
+        local ForceInstance = Instance.new("BodyPosition")
+        ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        ForceInstance.Position = Vector3.new(0, 20000000, 0)
+        ForceInstance.P = 6000000000000
+        ForceInstance.D = 6000000
+        ForceInstance.Parent = part
+    end
+end
+
+ function processAllParts()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        processPart(part)
+    end
+end
+
+ function cleanupBringReduction()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        local existingForce = part:FindFirstChildOfClass("BodyPosition")
+        if existingForce then
+            existingForce:Destroy()
+        end
+    end
+end
+
+ function deleteBlobmanParts()
+    for _, descendant in pairs(Workspace:GetDescendants()) do
+        if descendant.Name == "ブロブマン" or descendant.Name == "LeftDetector" or descendant.Name == "RightDetector" or descendant.Name == "BlobmanSeatAndOwnerScript" then
+            descendant:Destroy()
+        end
+    end
+end
+
+ function deleteSpawnedInToys()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer then
+            local toyName = player.Name .. "SpawnedInToys"
+            local toys = Workspace:FindFirstChild(toyName)
+            if toys then
+                toys:Destroy()
+            end
+        end
+    end
+end
+
+ flingPower = 200000
+ function flingAllParts()
+    for _, part in pairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") and not part.Anchored then
+            local force = Instance.new("BodyAngularVelocity")
+            force.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+            force.AngularVelocity = Vector3.new(
+                math.random(-flingPower, flingPower),
+                math.random(-flingPower, flingPower),
+                math.random(-flingPower, flingPower)
+            )
+            force.Parent = part
+            task.delay(0.5, function()
+                if force and force.Parent then
+                    force:Destroy()
+                end
+            end)
+        end
+    end
+end
+
+ function stopFling()
+    flingEnabled = false
+    if flingCoroutine then
+        coroutine.close(flingCoroutine)
+        flingCoroutine = nil
+    end
+end
 
 
 
@@ -2464,6 +2560,44 @@ DefenseTab:AddToggle({
 })
 
 
+DefenseTab:AddButton({
+    Name = "全員のオブジェクト削除",
+    Callback = function()
+        deleteSpawnedInToys()
+    end
+})
+
+DefenseTab:AddToggle({
+    Name = "Bring軽減",
+    Default = false,
+    Callback = function(state)
+        toggleBringEnabled = state
+        if state then
+            processAllParts()
+        else
+            cleanupBringReduction()
+        end
+    end
+})
+
+DefenseTab:AddToggle({
+    Name = "アンチリスキル",
+    Default = false,
+    Callback = function(state)
+        flingEnabled = state
+        if flingEnabled then
+            flingCoroutine = coroutine.create(function()
+                while flingEnabled do
+                    flingAllParts()
+                    wait(0.5)
+                end
+            end)
+            coroutine.resume(flingCoroutine)
+        else
+            stopFling()
+        end
+    end
+})
 
 
 DefenseTab:AddToggle({
@@ -9736,7 +9870,11 @@ KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 
-PATab:AddLabel("自動お座り修正")
+PATab:AddLabel("選択したプレイヤーのライン限界を60")
+PATab:AddLabel("アンチリスキル追加？")
+PATab:AddLabel("Bring軽減、追加")
+PATab:AddLabel("サーバー全員のObjectを削除、追加")
+PATab:AddLabel("ブロブマンの攻撃無効化を追加,")
 
 
 
@@ -10666,6 +10804,18 @@ end)
 Players.PlayerRemoving:Connect(function()
     Tab:UpdateDropdown("Select Player", getPlayerList())
 end)
+
+-- 必要なサービス
+ 
+
+-- メインタブのボタン
+hakaTab:AddButton({
+    Name = "ブロブマンの攻撃無効化",
+    Callback = function()
+        deleteBlobmanParts()
+    end
+})
+
 
 
 OrionLib:MakeNotification({Name = "a", Content = "a", Image = "rbxassetid://4483345998", Time = 5})
