@@ -1263,7 +1263,7 @@ ServerTab:AddToggle({
                         if playerCharacter then
                             for i = 1, aiueo_d do -- ユーザー定義の回数に応じてラインを送信
                                 game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
-                                    playerCharacter:FindFirstChildOfClass("Head"), 
+                                    playerCharacter:FindFirstChildOfClass("Part"), 
                                     CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0)) -- 定義された範囲内のランダムな座標
                                 )
                             end
@@ -1289,7 +1289,7 @@ ServerTab:AddToggle({
                         if playerCharacter then
                             for i = 1, aiueo_d do -- ユーザー定義の回数に応じてラインを送信
                                 game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
-                                    playerCharacter:FindFirstChildOfClass("Head"), 
+                                    playerCharacter:FindFirstChildOfClass("Part"), 
                                     CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0)) -- 定義された範囲内のランダムな座標
                                 )
                             end
@@ -1315,7 +1315,7 @@ ServerTab:AddToggle({
                         if playerCharacter then
                             for i = 1, aiueo_d do -- ユーザー定義の回数に応じてラインを送信
                                 game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
-                                    playerCharacter:FindFirstChildOfClass("Head"), 
+                                    playerCharacter:FindFirstChildOfClass("Part"), 
                                     CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0)) -- 定義された範囲内のランダムな座標
                                 )
                             end
