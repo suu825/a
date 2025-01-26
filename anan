@@ -2332,101 +2332,7 @@ blobalter = G_e
 end
 end
 end
-local playerDropdown = BlobmanTab:AddDropdown({
-Name = "プレイヤーを選択",
-Default = nil,
-Options = {},
-Callback = function(playerName)
-selectedPlayer = Players:FindFirstChild(playerName)
-if selectedPlayer then
-else
-end
-end
-})
-local function updatePlayerList()
-local playerNames = {}
-local playerSet = {}
-for _, player in ipairs(Players:GetPlayers()) do
-if player ~= localPlayer and not playerSet[player.Name] then
-table.insert(playerNames, player.Name)
-playerSet[player.Name] = true
-end
-end
-playerDropdown:Refresh(playerNames)
-end
-Players.PlayerAdded:Connect(updatePlayerList)
-Players.PlayerRemoving:Connect(updatePlayerList)
-updatePlayerList()
-local selectedPlayerToggle
-selectedPlayerToggle = BlobmanTab:AddButton({
-Name = "選んだプレイヤーをBring",
-Callback = function()
-local foundBlobman = false
-for _, v in ipairs(workspace:GetDescendants()) do
-if v.Name == "CreatureBlobman" then
-if v:FindFirstChild("VehicleSeat") and v.VehicleSeat:FindFirstChild("SeatWeld") and v.VehicleSeat.SeatWeld.Part1 == localPlayer.Character.HumanoidRootPart then
-blobman = v
-foundBlobman = true
-break
-end
-end
-end
-if not foundBlobman then
-selectedPlayerToggle:Set(false)
-return
-end
-local startTime = tick()
-local isLooping = true
-while isLooping do
-pcall(function()
-if selectedPlayer and blobman then
-blobGrabPlayer(selectedPlayer, blobman)
-end
-if tick() - startTime >= 0 then
-isLooping = false
-end
-end)
-end
-end
-})
-selectedPlayerToggle = BlobmanTab:AddToggle({
-Name = "オートBring",
-Default = false,
-Callback = function(enabled)
-if enabled then
-blobmanCoroutine = coroutine.create(function()
-local foundBlobman = false
-for _, v in ipairs(workspace:GetDescendants()) do
-if v.Name == "CreatureBlobman" then
-if v:FindFirstChild("VehicleSeat") and v.VehicleSeat:FindFirstChild("SeatWeld") and v.VehicleSeat.SeatWeld.Part1 == localPlayer.Character.HumanoidRootPart then
-blobman = v
-foundBlobman = true
-break
-end
-end
-end
-if not foundBlobman then
-selectedPlayerToggle:Set(false)
-return
-end
-while wait(_G.BlobmanDelay) do
-if selectedPlayer and blobman then
-blobGrabPlayer(selectedPlayer, blobman)
-else
-end
-wait()
-end
-end)
-coroutine.resume(blobmanCoroutine)
-else
-if blobmanCoroutine then
-coroutine.close(blobmanCoroutine)
-blobmanCoroutine = nil
-blobman = nil
-end
-end
-end
-})
+
 friendModeEnabled = false
 blobmanG_e = BlobmanTab:AddToggle({
 Name = "ALL",
@@ -8507,11 +8413,8 @@ KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
-PATab:AddLabel("選択したプレイヤーのライン限界を60")
-PATab:AddLabel("アンチリスキル追加？")
-PATab:AddLabel("Bring軽減、追加")
-PATab:AddLabel("サーバー全員のObjectを削除、追加")
-PATab:AddLabel("ブロブマンの攻撃無効化を追加,")
+PATab:AddLabel("選択したプレイヤーをBringするやつに関するやつを削除")
+
 FunTab:AddSlider({
 Name = "半径",
 Min = 1,
