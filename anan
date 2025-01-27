@@ -1617,7 +1617,7 @@ end
 GrabTab:AddToggle({
 Name = "毒掴む",
 Default = false,
-Save = true,
+Save = false,
 Color = Color3.fromRGB(255, 255, 255),
 Flag = "PoisonGrab",
 Callback = function(enabled)
@@ -1639,7 +1639,7 @@ GrabTab:AddToggle({
 Name = "Radioactive 掴む",
 Default = false,
 Color = Color3.fromRGB(255, 255, 255),
-Save = true,
+Save = false,
 Flag = "RadioactiveGrab",
 Callback = function(enabled)
 if enabled then
@@ -1660,7 +1660,7 @@ GrabTab:AddToggle({
 Name = "燃やす掴む",
 Default = false,
 Color = Color3.fromRGB(255, 255, 255),
-Save = true,
+Save = false,
 Flag = "FireGrab",
 Callback = function(enabled)
 if enabled then
@@ -1678,7 +1678,7 @@ GrabTab:AddToggle({
 Name = "ノクリップ掴む",
 Default = false,
 Color = Color3.fromRGB(255, 255, 255),
-Save = true,
+Save = false,
 Flag = "NoclipGrab",
 Callback = function(enabled)
 if enabled then
@@ -1779,7 +1779,7 @@ arasuTab:AddToggle({
 Name = "全員燃やす",
 Default = false,
 Color = Color3.fromRGB(255, 255, 255),
-Save = true,
+Save = false,
 Callback = function(enabled)
 if enabled then
 fireAllCoroutine = coroutine.create(fireAll)
@@ -1797,7 +1797,7 @@ arasuTab:AddToggle({
 Name = "ラグドールALL",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
-Save = true,
+Save = false,
 Callback = function(enabled)
 if enabled then
 ragdollAllCoroutine = coroutine.create(ragdollAll)
@@ -1839,7 +1839,7 @@ DefenseTab:AddToggle({
 Name = "アンチ掴む",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
-Save = true,
+Save = false,
 Flag = "antiGrab",
 Callback = function(enabled)
 if enabled then
@@ -2096,7 +2096,7 @@ DefenseTab:AddToggle({
 Name = "アンチ爆発",
 Default = false,
 Color = Color3.fromRGB(255, 255, 255),
-Save = true,
+Save = false,
 Flag = "AntiExplosion",
 Callback = function(enabled)
 local localPlayer = game.Players.LocalPlayer
@@ -2126,7 +2126,7 @@ DefenseTab:AddToggle({
 Name = "アンチラグ",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
-Save = true,
+Save = false,
 Flag = "antilag",
 Callback = function(antilaggg)
 local function anti_lag ()
@@ -2150,7 +2150,7 @@ DefenseTab:AddToggle({
 Name = "自分のこと掴んだ相手が上に上がる",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
-Save = true,
+Save = false,
 Flag = "SelfDefenseAirSuspend",
 Callback = function(enabled)
 if enabled then
@@ -2212,7 +2212,7 @@ end
 DefenseTab:AddToggle({
 Name = "自分のこと掴んだ相手が座る",
 Default = false,
-Save = true,
+Save = false,
 Color = Color3.fromRGB(255, 255, 255),
 Flag = "SelfDefenseKick",
 Callback = function(enabled)
@@ -2338,7 +2338,7 @@ blobmanG_e = BlobmanTab:AddToggle({
 Name = "ALL",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
-Save = true,
+Save = false,
 Flag = "kickAllblob",
 Callback = function(enabled)
 if BlobmanToggle == 1 then
@@ -2437,7 +2437,7 @@ BlobmanTab:AddDropdown({
 Name = "モード",
 Options = {"滑るALL", "キックALL"},
 Default = "",
-Save = true,
+Save = false,
 Flag = "ALL",
 Callback = function(selected)
 if selected == "滑るALL" then
@@ -2581,7 +2581,7 @@ end
 ObjectTab:AddToggle({
 Name = "オブジェクトオーラ回転",
 Default = false,
-Save = true,
+Save = false,
 Callback = function(enabled)
 auraActive = enabled
 if enabled then
@@ -2617,7 +2617,7 @@ AuraTab:AddToggle({
 Name = "掴むオーラ",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
-Save = true,
+Save = false,
 Flag = "FlingAura",
 Callback = function(enabled)
 if enabled then
@@ -2675,7 +2675,7 @@ AuraTab:AddToggle({
 Name = "上に上がるオーラ",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
-Save = true,
+Save = false,
 Flag = "skyAura",
 Callback = function(enabled)
 if enabled then
@@ -2739,7 +2739,7 @@ AuraTab:AddToggle({
 Name = "フリングオーラ",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
-Save = true,
+Save = false,
 Flag = "FlingAura",
 Callback = function(enabled)
 if enabled then
@@ -2811,7 +2811,7 @@ AuraTab:AddToggle({
 Name = "フリーズオーラ",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
-Save = true,
+Save = false,
 Flag = "FreezeAura",
 Callback = function(enabled)
 if enabled then
@@ -2875,7 +2875,7 @@ AuraTab:AddToggle({
 Name = "フリーズオーラV2",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
-Save = true,
+Save = false,
 Flag = "FreezeAurav2",
 Callback = function(enabled)
 if enabled then
@@ -2939,7 +2939,7 @@ AuraTab:AddToggle({
 Name = "毒オーラ",
 Default = false,
 Color = Color3.fromRGB(255, 255, 255),
-Save = true,
+Save = false,
 Callback = function(enabled)
 if enabled then
 poisonAuraCoroutine = coroutine.create(function()
@@ -3010,7 +3010,7 @@ AuraTab:AddToggle({
 Name = "radioactiveオーラ",
 Default = false,
 Color = Color3.fromRGB(255, 255, 255),
-Save = true,
+Save = false,
 Callback = function(enabled)
 if enabled then
 radioactiveAuraCoroutine = coroutine.create(function()
@@ -3081,7 +3081,7 @@ AuraTab:AddToggle({
 Name = "相手が埋まる",
 Default = false,
 Color = Color3.fromRGB(255, 255, 255),
-Save = true,
+Save = false,
 Flag = "narakuGrab",
 Callback = function(enabled)
 if enabled then
@@ -3252,7 +3252,7 @@ Color = Color3.fromRGB(255, 255, 255),
 ValueName = ".",
 Increment = 100,
 Default = 0,
-Save = true,
+Save = false,
 Flag = "Charactertakasa",
 Callback = function(value)
 game:GetService('Players').LocalPlayer.Character.Humanoid.HipHeight = value
@@ -3291,7 +3291,7 @@ Color = Color3.fromRGB(240, 0, 0),
 ValueName = "Missiles",
 Increment = 1,
 Default = _G.MaxMissiles,
-Save = true,
+Save = false,
 Flag = "NaxMissilesSlider",
 Callback = function(value)
 _G.MaxMissiles = value
@@ -3301,7 +3301,7 @@ ExplosionTab:AddToggle({
 Name = "これをオンにすると決めたやつが出てきます",
 Default = false,
 Color = Color3.fromRGB(240, 0, 0),
-Save = true,
+Save = false,
 Flag = "AutoReloadBombs",
 Callback = function(enabled)
 reloadMissile(enabled)
@@ -7403,7 +7403,7 @@ end
 GrabTab:AddToggle({
 Name = "キル掴む",
 Default = false,
-Save = true,
+Save = false,
 Flag = "KillGrab",
 Callback = function(Value)
 enabled = Value
@@ -7420,7 +7420,7 @@ end)
 GrabTab:AddToggle({
 Name = "上に上がる掴む",
 Default = false,
-Save = true,
+Save = false,
 Flag = "skyGrab",
 Callback = function(Value)
 enabled = Value
@@ -7449,7 +7449,7 @@ end
 GrabTab:AddToggle({
 Name = "下に下がる掴む",
 Default = false,
-Save = true,
+Save = false,
 Flag = "-skyGrab",
 Callback = function(Value)
 enabled = Value
@@ -7478,7 +7478,7 @@ end
 GrabTab:AddToggle({
 Name = "高さを保ちながら掴む",
 Default = false,
-Save = true,
+Save = false,
 Flag = "Grabnokoudo",
 Callback = function(Value)
 enabled = Value
@@ -7507,7 +7507,7 @@ end
 GrabTab:AddToggle({
 Name = "回転掴む",
 Default = false,
-Save = true,
+Save = false,
 Flag = "spinGrab",
 Callback = function(Value)
 enabled = Value
@@ -7585,7 +7585,7 @@ Color = Color3.fromRGB(255, 255, 255),
 ValueName = ".",
 Increment = 1000000,
 Default = G_y,
-Save = true,
+Save = false,
 Flag = "zahyu",
 Callback = function(value)
 G_y = value
@@ -8574,7 +8574,7 @@ end
 ObjectTab:AddToggle({
 Name = "オブジェクト掴むオーラ",
 Default = false,
-Save = true,
+Save = false,
 Callback = function(enabled)
 if enabled then
 ObjectGrabCoroutine = coroutine.create(ObjectGrab)
@@ -8628,7 +8628,7 @@ end
 ObjectTab:AddToggle({
 Name = "オブジェクト削除オーラ",
 Default = false,
-Save = true,
+Save = false,
 Callback = function(enabled)
 if enabled then
 ObjectdestoyCoroutine = coroutine.create(Objectdestoy)
@@ -8707,7 +8707,7 @@ end
 ObjectTab:AddToggle({
 Name = "(リング)ってやつオンにしてからしてね",
 Default = false,
-Save = true,
+Save = false,
 Callback = function(enabled)
 if enabled then
 ObjectAuraDCoroutine = coroutine.create(ObjectAuraD)
