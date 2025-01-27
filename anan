@@ -2369,12 +2369,12 @@ if blobman and v ~= localPlayer then
 if not friendModeEnabled or (friendModeEnabled and not localPlayer:IsFriendsWith(v.UserId)) then
 blobGrabPlayer(v, blobman)
 end
-wait(_G.BlobmanDelay)
+wait()
 end
 end
 end
 end)
-wait(_G.BlobmanDelay)
+wait(0.1)
 end
 end)
 coroutine.resume(blobmanCoroutine)
@@ -2432,28 +2432,7 @@ end
 end
 end
 })
-BlobmanTab:AddSlider({
-Name = "スピード",
-Min = 0.001,
-Max = 0.8,
-Color = Color3.fromRGB(255, 255, 255),
-ValueName = ".",
-Increment = 0.0001,
-Default = _G.BlobmanDelay ,
-Save = true,
-Flag = "kickspeed",
-Callback = function(value)
-_G.BlobmanDelay  = value
-end
-})
-BlobmanTab:AddTextbox({
-Name = "スピード入力式",
-Default = "Input",
-TextDisappear = true,
-Callback = function(Value)
-_G.BlobmanDelay = Value
-end
-})
+
 BlobmanTab:AddDropdown({
 Name = "モード",
 Options = {"滑るALL", "キックALL"},
@@ -2541,8 +2520,8 @@ if not blobman.PrimaryPart then
 blobman.PrimaryPart = blobman:FindFirstChild("HumanoidRootPart") or blobman:FindFirstChild("MainPart") or blobman:FindFirstChildWhichIsA("BasePart")
 end
 if blobman.PrimaryPart then
-local positions = {Vector3.new(5e+25, 0, 0), Vector3.new(5e+27, 0, 0), Vector3.new(0, 5e+20, 0), Vector3.new(0, 0, 5e+25),
-Vector3.new(0, 0, 5e+27), Vector3.new(-12, -40, 7)}
+local positions = {Vector3.new(5e+24, 0, 0), Vector3.new(5e+25, 0, 0), Vector3.new(0, 5e+23, 0), Vector3.new(0, 0, 5e+23),
+Vector3.new(0, 0, 5e+25), Vector3.new(-12, -40, 7)}
 local index = 1
 while true do
 task. wait()
