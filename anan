@@ -8392,7 +8392,10 @@ KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
-PATab:AddLabel("選択したプレイヤーをBringするやつに関するやつを削除")
+PATab:AddLabel("アップデートされた日")
+PATab:AddLabel("1月27日12時")
+
+PATab:AddLabel("ALLのスピード削除。一定のスピードにする。")
 
 FunTab:AddSlider({
 Name = "半径",
