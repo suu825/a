@@ -1169,7 +1169,7 @@ end
 ServerTab:AddSlider({
 Name = "選択したプレイヤーに当てる、ライン量",
 Min = 1,
-Max = 60,
+Max = 80,
 Color = Color3.fromRGB(255, 255, 255),
 ValueName = ".",
 Increment = 1,
@@ -1249,7 +1249,7 @@ while isLooping do
 for i = 1, 500000 do
 game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
 workspace:FindFirstChildOfClass("Part"),
-CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0))
+CFrame.new(math.random(-0, 0), math.random(-0, 666666666666666), math.random(-0, 0))
 )
 end
 wait()
@@ -1278,54 +1278,7 @@ end
 end
 end
 })
-ServerTab:AddButton({
-Name = "クレイジーラインタップ式",
-Callback = function()
-local startTime = tick()
-local isLooping = true
-while isLooping do
-for i = 1, 200 do
-local players = game:GetService("Players"):GetPlayers()
-if #players > 0 then
-local randomPlayer = players[math.random(2, #players)]
-game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
-randomPlayer.Character and randomPlayer.Character:FindFirstChild("HumanoidRootPart") or nil,
-CFrame.new(0, 0, 0)
-)
-end
-wait()
-if tick() - startTime >= wait(3) then
-isLooping = false
-end
-end
-end
-end
-})
-ServerTab:AddToggle({
-Name = "遅いラグサーバー",
-Default = false,
-Callback = function(state)
-runnina = runnina
-if runnina then
-coroutine.wrap(function()
-while running do
-for i = 750, 6500 do
-local players = game:GetService("Players"):GetPlayers()
-if #players > 0 then
-local randomPlayer = players[math.random(2, #players)]
-game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
-randomPlayer.Character and randomPlayer.Character:FindFirstChild("HumanoidRootPart") or nil,
-CFrame.new(0, 0, 0)
-)
-end
-end
-wait(10)
-end
-end)()
-else
-end
-end
-})
+
 ServerTab:AddToggle({
 Name = "クレイジーライン",
 Default = false,
@@ -1390,7 +1343,7 @@ end
 ServerTab:AddSlider({
 Name = "クレイジーライン、ライン量",
 Min = 1,
-Max = 50,
+Max = 25,
 Color = Color3.fromRGB(255, 255, 255),
 ValueName = ".",
 Increment = 1,
@@ -1555,7 +1508,7 @@ end
 end
 })
 ServerTab:AddSlider({
-Name = "ラグサーバーV2",
+Name = "ラグサーバーV2、ライン量",
 Min = 50,
 Max = 2000,
 Color = Color3.fromRGB(255, 255, 255),
@@ -8379,7 +8332,7 @@ KTab:AddLabel("simonBaker_act3")
 KTab:AddLabel("ぺぱ")
 KTab:AddLabel("はるね")
 KTab:AddLabel("うな")
-KTab:AddLabel("あるほ")
+KTab:AddLabel("ynn008")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
@@ -8393,10 +8346,11 @@ KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 PATab:AddLabel("アップデートされた日")
-PATab:AddLabel("1月27日12時")
+PATab:AddLabel("1月28日3時")
 
-PATab:AddLabel("ALLのスピード削除。一定のスピードにする。")
-
+PATab:AddLabel("遅いラグサーバー削除")
+PATab:AddLabel("クレイジーラインタップ式削除")
+PATab:AddLabel("自動無敵突破削除")
 FunTab:AddSlider({
 Name = "半径",
 Min = 1,
