@@ -212,7 +212,7 @@ end
 end
 return objects
 end
-local function grabObject(part, playerCFrame)
+ function grabObject(part, playerCFrame)
 if part:IsA("BasePart") then
 SetNetworkOwner:FireServer(part, playerCFrame)
 task.delay(20, function()
@@ -353,11 +353,11 @@ currentParent = currentParent.Parent
 end
 return false
 end
-local function DestroyT(toy)
+ function DestroyT(toy)
 local toy = toy or toysFolder:FindFirstChildWhichIsA("Model")
 DestroyToy:FireServer(toy)
 end
-local function getDescendantParts(descendantName)
+ function getDescendantParts(descendantName)
 local parts = {}
 for _, descendant in ipairs(workspace.Map:GetDescendants()) do
 if descendant:IsA("Part") and descendant.Name == descendantName then
@@ -8753,212 +8753,143 @@ Callback = function(value)
 RingAuraHeight = value
 end
 })
-localPlayer = game.Players.LocalPlayer
-playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-localPlayer.CharacterAdded:Connect(function(character)
-playerCharacter = character
-end)
-toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
-autoEnabled = false
-targetPlayerName = ""
-function getRandomVector(min, max)
-return Vector3.new(
-math.random(min, max),
-math.random(min, max),
-math.random(min, max)
-)
-end
-function spawnSnowball()
-task.spawn(function()
-local rotation = Vector3.new(0, 0, 0)
-local success, err = pcall(function()
-game:GetService("ReplicatedStorage").MenuToys.SpawnToyRemoteFunction:InvokeServer("BallSnowball", playerCharacter.Head.CFrame, rotation)
-end)
-if success then
-end
-end)
-end
-function findSnowball()
-if not toysFolder then
-toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
-end
-if toysFolder then
-for _, item in pairs(toysFolder:GetChildren()) do
-if item.Name == "BallSnowball" then
-return item
-end
-end
-end
-return nil
-end
-function teleportAndShake(item, targetPlayer)
-if item and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-local targetPos = targetPlayer.Character.HumanoidRootPart.Position
-item.CFrame = CFrame.new(targetPos)
-item.AssemblyLinearVelocity = getRandomVector(-100, 100)
-item.AssemblyAngularVelocity = getRandomVector(-50, 50)
-end
-end
-function autoTeleportAndShake()
-while autoEnabled do
-pcall(function()
-local snowball = findSnowball()
-if not snowball then
-spawnSnowball()
-wait()
-else
-for _, child in pairs(snowball:GetChildren()) do
-if child:IsA("BasePart") then
-local targetPlayer = game.Players:FindFirstChild(targetPlayerName)
-if targetPlayer then
-teleportAndShake(child, targetPlayer)
-end
-end
-end
-end
-end)
-wait()
-end
-end
-function toggleAutoTeleportAndShake(enabled)
-autoEnabled = enabled
-if enabled then
-task.spawn(autoTeleportAndShake)
-end
-end
-function getPlayerList()
-local playerList = {}
-for _, player in pairs(game.Players:GetPlayers()) do
-table.insert(playerList, player.Name .. " (" .. player.DisplayName .. ")")
-end
-return playerList
-end
-function updateTargetPlayer(selected)
-for _, player in pairs(game.Players:GetPlayers()) do
-if selected == player.Name .. " (" .. player.DisplayName .. ")" then
-targetPlayerName = player.Name
-break
-end
-end
-end
-freezeATab:AddDropdown({
-Name = "プレイヤーを選択",
-Default = "",
-Options = getPlayerList(),
-Callback = function(selected)
-updateTargetPlayer(selected)
-end,
-AllowCustom = false
-})
-task.spawn(function()
-while true do
-task.wait(0)
-local dropdown = MainTab:GetElement("プレイヤーを選択")
-dropdown:SetOptions(getPlayerList())
-end
-end)
-freezeATab:AddToggle({
-Name = "自動無敵突破",
-Default = false,
-Callback = function(enabled)
-toggleAutoTeleportAndShake(enabled)
-end
-})
-Players = game:GetService("Players")
-playerNames = {}
+
+ Players = game:GetService("Players")
+ playerNames = {}
+
 for _, player in ipairs(Players:GetPlayers()) do
-table.insert(playerNames, player.Name)
+    table.insert(playerNames, player.Name)
 end
+
 local Bring
+
+
 local PlayerDropdown = freezeATab:AddDropdown({
-Name = "Bringしたいプレイヤーを選ぶ(ブロブマンなし)",
-Options = playerNames,
-Callback = function(selected)
-Bring = selected
-end
+    Name = "Bringしたいプレイヤーを選ぶ",
+    Options = playerNames,
+    Callback = function(selected)
+        Bring = selected  -- Store the selected player name
+    end
 })
-function RefreshPlayerList()
-playerNames = {}
-for _, player in ipairs(Players:GetPlayers()) do
-table.insert(playerNames, player.Name)
+
+ function RefreshPlayerList()
+    playerNames = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    PlayerDropdown:Refresh(playerNames, true)
 end
-PlayerDropdown:Refresh(playerNames, true)
-end
+
 Players.PlayerAdded:Connect(function()
-RefreshPlayerList()
+    RefreshPlayerList()
 end)
+
 Players.PlayerRemoving:Connect(function()
-RefreshPlayerList()
+    RefreshPlayerList()
 end)
+
 freezeATab:AddButton({
-Name = "選択したプレイヤーをBring",
-Callback = function()
-local Players = game:GetService("Players")
-local targetPlayer = Players:FindFirstChild(Bring)
-if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-local localPlayer = Players.LocalPlayer
-local localPosition = localPlayer.Character.HumanoidRootPart.Position
-local lookVector = localPlayer.Character.HumanoidRootPart.CFrame.LookVector
-local targetPosition = localPosition + (lookVector * 5)
-targetPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
-else
-end
-end
+    Name = "選択したプレイヤーをBring",
+    Callback = function()
+        local targetPlayer = Players:FindFirstChild(Bring)
+
+        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local localPlayer = Players.LocalPlayer
+            local localPosition = localPlayer.Character.HumanoidRootPart.Position
+            -- Get the direction the local player is facing
+            local lookVector = localPlayer.Character.HumanoidRootPart.CFrame.LookVector
+
+            -- Calculate the new position 2 meters in front of the local player
+            local targetPosition = localPosition + (lookVector * 5)
+
+            -- Move the target player's HumanoidRootPart to this new position
+            targetPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
+        else
+          
+        end
+    end
 })
-Players = game:GetService("Players")
-playerNames = {}
-for _, player in ipairs(Players:GetPlayers()) do
-table.insert(playerNames, player.Name)
-end
+
+
+
+
 local FreezeP
-PlayerDropdown = freezeATab:AddDropdown({
-Name = "freezeさせたいプレイヤーを選ぶ",
-Options = playerNames,
-Callback = function(selected)
-FreezeP = selected
-end
-})
-function RefreshPlayerList()
-playerNames = {}
+
+ Players = game:GetService("Players")
+ playerNames = {}
+
 for _, player in ipairs(Players:GetPlayers()) do
-table.insert(playerNames, player.Name)
+    table.insert(playerNames, player.Name)
 end
-PlayerDropdown:Refresh(playerNames, true)
-end
-Players.PlayerAdded:Connect(function()
-RefreshPlayerList()
-end)
-Players.PlayerRemoving:Connect(function()
-RefreshPlayerList()
-end)
-isFrozen = false
-function toggleFreezeSelectedPlayer()
-if FreezeP then
-local playerToFreeze = Players:FindFirstChild(FreezeP)
-if playerToFreeze and playerToFreeze.Character then
-local character = playerToFreeze.Character
-for _, part in pairs(character:GetDescendants()) do
-if part:IsA("BasePart") then
-part.Anchored = not isFrozen
-end
-end
-isFrozen = not isFrozen
-else
-end
-else
-end
-end
-freezeATab:AddToggle({
-Name = "選んだプレイヤーをfreeze",
-Default = false,
-Callback = function(toggleState)
-if toggleState then
-toggleFreezeSelectedPlayer()
-else
-toggleFreezeSelectedPlayer()
-end
-end
+
+-- ドロップダウンの設定
+local PlayerDropdown = freezeATab:AddDropdown({
+    Name = "freezeさせたいプレイヤーを選ぶ",
+    Options = playerNames,
+    Callback = function(selected)
+        FreezeP = selected  -- 選択されたプレイヤー名を保存する
+    end
 })
+
+ function RefreshPlayerList()
+    playerNames = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    PlayerDropdown:Refresh(playerNames, true)
+end
+
+Players.PlayerAdded:Connect(function()
+    RefreshPlayerList()
+end)
+
+Players.PlayerRemoving:Connect(function()
+    RefreshPlayerList()
+end)
+
+-- Player freezing functionality (こちらは変更なし)
+
+
+ function toggleFreezeSelectedPlayer()
+    if FreezeP then
+        local playerToFreeze = Players:FindFirstChild(FreezeP)
+        if playerToFreeze and playerToFreeze.Character then
+            local character = playerToFreeze.Character
+            for _, part in pairs(character:GetChildren()) do  
+                if part:IsA("BasePart") then
+                    part.Anchored = isFrozen 
+                end
+            end
+
+            isFrozen = not isFrozen  
+        else
+           
+        end
+    else
+       
+    end
+end
+
+-- トグルボタンの設定
+freezeATab:AddToggle({
+    Name = "選んだプレイヤーをfreeze",
+    Default = false,
+    Callback = function(toggleState)
+        isFrozen = toggleState  
+        toggleFreezeSelectedPlayer()  
+    end
+})
+
+
+-- プレイヤーリストを手動で更新するボタンを追加
+freezeATab:AddButton({
+    Name = "リスト更新",
+    Callback = function()
+        RefreshPlayerList()  -- プレイヤーリストを更新
+      
+    end
+})
+
 function esp(p, cr)
 if not ESPEnabled then return end
 local h = cr:WaitForChild("Humanoid")
