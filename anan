@@ -2288,13 +2288,13 @@ end
 
 friendModeEnabled = false
 blobmanG_e = BlobmanTab:AddToggle({
-Name = "ALL",
+Name = "キックALL",
 Color = Color3.fromRGB(255, 255, 255),
 Default = false,
 Save = false,
 Flag = "kickAllblob",
 Callback = function(enabled)
-if BlobmanToggle == 1 then
+
 if enabled then
 blobmanCoroutine = coroutine.create(function()
 local foundBlobman = false
@@ -2338,8 +2338,18 @@ blobmanCoroutine = nil
 blobman = nil
 end
 end
-else
-if BlobmanToggle == 2 then
+end
+})
+
+
+blobmanG_e = BlobmanTab:AddToggle({
+Name = "滑るALL",
+Color = Color3.fromRGB(255, 255, 255),
+Default = false,
+Save = false,
+Flag = "FreezeAllblob",
+Callback = function(enabled)
+
 if enabled then
 blobmanCoroutine = coroutine.create(function()
 local foundBlobman = false
@@ -2382,24 +2392,13 @@ blobman = nil
 end
 end
 end
-end
-end
 })
 
-BlobmanTab:AddDropdown({
-Name = "モード",
-Options = {"滑るALL", "キックALL"},
-Default = "",
-Save = false,
-Flag = "ALL",
-Callback = function(selected)
-if selected == "滑るALL" then
-BlobmanToggle = 2
-else
-BlobmanToggle = 1
-end
-end
-})
+
+
+
+
+
 BlobmanTab:AddToggle({
 Name = "ホワイトフレンド",
 Color = Color3.fromRGB(255, 255, 255),
@@ -2455,7 +2454,7 @@ G_get  = value
 end
 })
 BlobmanTab:AddButton({
-Name = "27桁座標いもり",
+Name = "25桁座標いもり",
 Callback = function()
 local function findBlobman()
 for _, v in pairs(workspace:GetDescendants()) do
@@ -8333,12 +8332,12 @@ KTab:AddLabel("ぺぱ")
 KTab:AddLabel("はるね")
 KTab:AddLabel("うな")
 KTab:AddLabel("ynn008")
-KTab:AddLabel("なし")
+KTab:AddLabel("OhayoJP_2023")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("クラン")
-KTab:AddLabel("なし")
-KTab:AddLabel("なし")
+KTab:AddLabel("As")
+KTab:AddLabel("Gz")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
