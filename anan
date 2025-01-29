@@ -19,7 +19,7 @@ if part.Anchored or part:IsDescendantOf(character) then
 return
 end
 if part.Name == "Torso" or part.Name == "Head" or part.Name == "Right Arm" or part.Name == "Left Arm" or
-part.Name == "Right Leg" or part.Name == "Left Leg" or part.Name == "HumanoidRootPart" then
+part.Name == "Right Leg," or part.Name == "Left Leg" or part.Name == "HumanoidRootPart" then
 return
 end
 if not part:FindFirstChildOfClass("BodyPosition") then
@@ -1840,6 +1840,44 @@ Callback = function(value)
 D_p  = value
 end
 })
+
+function destroyHead()
+    local player = game.Players.LocalPlayer
+    if player and player.Character then
+        local head = player.Character:FindFirstChild("Head")
+        if head then
+            head:Destroy() -- Headを削除
+        end
+    end
+end
+
+-- キャラクターが新しくスポーンしたときの処理
+ function onCharacterAdded(character)
+    character:WaitForChild("Head") -- Headが読み込まれるまで待機
+    if looping then
+        task.wait(0.001) -- 少し待機してから削除（処理の安定化）
+        destroyHead()
+    end
+end
+
+-- トグルボタンの作成
+DefenseTab:AddToggle({
+    Name = "キャラリセ",
+    Default = false
+    Callback = function(value)
+        looping = value -- トグルの状態を更新
+
+        if looping then
+            destroyHead() -- すぐにリセット開始
+        end
+    end
+})
+
+-- キャラクターがスポーンするたびに `Head` を削除
+local player = game.Players.LocalPlayer
+player.CharacterAdded:Connect(onCharacterAdded)
+
+
 local MenuToys = ReplicatedStorage:WaitForChild("MenuToys")
 localPlayer.CharacterAdded:Connect(function(character)
 playerCharacter = character
