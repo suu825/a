@@ -1169,7 +1169,7 @@ end
 ServerTab:AddSlider({
 Name = "選択したプレイヤーに当てる、ライン量",
 Min = 1,
-Max = 80,
+Max = 100,
 Color = Color3.fromRGB(255, 255, 255),
 ValueName = ".",
 Increment = 1,
@@ -1249,7 +1249,7 @@ while isLooping do
 for i = 1, 500000 do
 game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
 workspace:FindFirstChildOfClass("Part"),
-CFrame.new(math.random(-0, 0), math.random(-0, 666666666666666), math.random(-0, 0))
+CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0))
 )
 end
 wait()
@@ -1268,7 +1268,7 @@ while isLooping do
 for i = 750, 6500 do
 game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
 workspace:FindFirstChildOfClass("Part"),
-CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0))
+CFrame.new(math.random(-0, 0), math.random(-0, 667666666666), math.random(-0, 0))
 )
 end
 wait(0.0000000001)
