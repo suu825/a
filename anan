@@ -1863,7 +1863,7 @@ end
 -- トグルボタンの作成
 DefenseTab:AddToggle({
     Name = "キャラリセ",
-    Default = false
+    Default = false,
     Callback = function(value)
         looping = value -- トグルの状態を更新
 
