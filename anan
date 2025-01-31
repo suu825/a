@@ -3265,38 +3265,7 @@ player.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStat
 end
 end
 end)
-ExplosionTab:AddDropdown({
-Name = "出すおもちゃを選ぶ",
-Default = "BombMissile",
-Options = {"BombMissile", "FireworkMissile"},
-Callback = function(Value)
-_G.ToyToLoad = Value
-end
-})
-ExplosionTab:AddSlider({
-Name = "決めた数を出す",
-Min = 1,
-Max = localPlayer.ToysLimitCap.Value / 10,
-Color = Color3.fromRGB(240, 0, 0),
-ValueName = "Missiles",
-Increment = 1,
-Default = _G.MaxMissiles,
-Save = false,
-Flag = "NaxMissilesSlider",
-Callback = function(value)
-_G.MaxMissiles = value
-end
-})
-ExplosionTab:AddToggle({
-Name = "これをオンにすると決めたやつが出てきます",
-Default = false,
-Color = Color3.fromRGB(240, 0, 0),
-Save = false,
-Flag = "AutoReloadBombs",
-Callback = function(enabled)
-reloadMissile(enabled)
-end
-})
+
 ScriptTab:AddButton({
 Name = "ALL？",
 Callback = function()
@@ -8993,6 +8962,151 @@ end)
 Players.PlayerRemoving:Connect(function()
 Tab:UpdateDropdown("Select Player", getPlayerList())
 end)
+
+local localPlayer = game.Players.LocalPlayer
+local playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+
+localPlayer.CharacterAdded:Connect(function(character)
+    playerCharacter = character
+end)
+
+local toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
+local autoEnabled = false
+local targetPlayerName = ""
+
+-- ミサイルの物理設定を調整
+ function configurePart(part)
+    if part:IsA("BasePart") then
+        part.Anchored = false -- 動きを許可
+        part.CanCollide = false -- 衝突を無効化
+        part.Massless = true -- 重力の影響を軽減
+    end
+end
+
+ function spawnBombMissile()
+    task.spawn(function()
+        local rotation = Vector3.new(0, 0, 0)
+        local success, err = pcall(function()
+            game:GetService("ReplicatedStorage").MenuToys.SpawnToyRemoteFunction:InvokeServer("BombMissile", playerCharacter.Head.CFrame, rotation)
+        end)
+        if success then
+            
+        else
+            
+        end
+    end)
+end
+
+ function findBombMissile()
+    if not toysFolder then
+        toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
+    end
+
+    if toysFolder then
+        for _, item in pairs(toysFolder:GetChildren()) do
+            if item.Name == "BombMissile" then
+                return item
+            end
+        end
+    end
+
+    return nil
+end
+
+ function chaseTarget(item, targetPlayer, speed)
+    if item and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local targetPos = targetPlayer.Character.HumanoidRootPart.Position
+        local currentPos = item.Position
+        local direction = (targetPos - currentPos).Unit
+        item.AssemblyLinearVelocity = direction * speed -- ターゲットに向かって移動
+    end
+end
+
+ function autoChaseContents()
+    local speed = 2500 -- 爆発ミサイル用の高速設定
+    while autoEnabled do
+        pcall(function()
+            local bombMissile = findBombMissile()
+            if not bombMissile then
+                
+                spawnBombMissile()
+                wait() -- スポーン待ち
+            else
+                for _, child in pairs(bombMissile:GetChildren()) do
+                    if child:IsA("BasePart") then
+                        local targetPlayer = game.Players:FindFirstChild(targetPlayerName)
+                        if targetPlayer then
+                            local distance = (child.Position - targetPlayer.Character.HumanoidRootPart.Position).Magnitude
+                            if distance > 1 then -- プレイヤーに到達していない場合
+                                chaseTarget(child, targetPlayer, speed)
+                            else
+                                child.AssemblyLinearVelocity = Vector3.new(0, 0, 0) -- 到達時停止
+                            
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+        wait() -- 更新間隔を短くして滑らかに追尾
+    end
+end
+
+ function toggleAutoChase(enabled)
+    autoEnabled = enabled
+    if enabled then
+       
+        task.spawn(autoChaseContents)
+    else
+        
+    end
+end
+
+ function getPlayerList()
+    local playerList = {}
+    for _, player in pairs(game.Players:GetPlayers()) do
+        table.insert(playerList, player.Name .. " (" .. player.DisplayName .. ")")
+    end
+    return playerList
+end
+
+ function updateTargetPlayer(selected)
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if selected == player.Name .. " (" .. player.DisplayName .. ")" then
+            targetPlayerName = player.Name
+         
+            break
+        end
+    end
+end
+
+
+
+ExplosionTab:AddDropdown({
+    Name = "ターゲット",
+    Default = "",
+    Options = getPlayerList(),
+    Callback = function(selected)
+        updateTargetPlayer(selected)
+    end,
+    AllowCustom = false
+})
+
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        local dropdown = MainTab:GetElement("ターゲットプレイヤー選択")
+        dropdown:SetOptions(getPlayerList())
+    end
+end)
+
+ExplosionTab:AddToggle({
+    Name = "ミサイル",
+    Default = false,
+    Callback = function(enabled)
+        toggleAutoChase(enabled)
+    end
+})
 
 OrionLib:MakeNotification({Name = "a", Content = "a", Image = "rbxassetid://4483345998", Time = 5})
 OrionLib:Init()
