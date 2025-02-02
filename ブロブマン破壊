@@ -1,1 +1,95 @@
+local Players = game:GetService("Players")
+local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 
+-- GUIの作成
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0.2, 0, 0.15, 0)
+frame.Position = UDim2.new(0.3, 0, 0.4, 0)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.Active = true -- ドラッグ可能にするためにActiveプロパティを有効化
+frame.Draggable = true -- ドラッグ可能
+frame.Parent = screenGui
+
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0.8, 0, 0.5, 0)
+button.Position = UDim2.new(0.1, 0, 0.25, 0)
+button.Text = "ブロブマン無効"
+button.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.Parent = frame
+
+-- プレイヤーごとの処理を関数化
+local function processPlayer(player)
+    local folderName = player.Name .. "SpawnedInToys"
+    local targetFolder = game.Workspace:FindFirstChild(folderName)
+
+    if not targetFolder then
+       
+        return
+    end
+
+    local creatureBlobman = targetFolder:FindFirstChild("CreatureBlobman")
+    if not creatureBlobman then
+      
+        return
+    end
+
+    for _, detectorName in ipairs({"RightDetector", "LeftDetector"}) do
+        local detector = creatureBlobman:FindFirstChild(detectorName)
+        if detector then
+            detector:Destroy()
+          
+        else
+         
+        end
+    end
+end
+
+-- ボタンをクリックしたときの処理
+button.MouseButton1Click:Connect(function()
+    
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer then
+           
+            pcall(function()
+                processPlayer(player)
+            end)
+        end
+    end
+
+  
+end)
+
+-- ドラッグをスムーズにする（Draggableの代わりに手動制御）
+local dragging = false
+local dragStart, startPos
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+frame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
