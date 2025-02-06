@@ -8323,8 +8323,8 @@ end
 GTab:AddButton({
 Name = "ディスコードリンク",
 Callback = function()
-setclipboard("https://discord.gg/RUGt4gJcbJ")
-toclipboard("https://discord.gg/RUGt4gJcbJ")
+setclipboard("https://discord.gg/eGZEdpuNd8")
+toclipboard("https://discord.gg/eGZEdpuNd8")
 end
 })
 HomeTab:AddParagraph("ユーザーname", game.Players.LocalPlayer.Name)
@@ -8351,9 +8351,9 @@ KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
 KTab:AddLabel("なし")
-PATab:AddLabel("アップデートされた日")
-PATab:AddLabel("3月")
-PATab:AddLabel("スクリプト削除する")
+PATab:AddLabel("2/6 14:46")
+PATab:AddLabel("これが最後のアップデート")
+PATab:AddLabel("ディスコリンク直したから、よかったら入ってね")
 
 FunTab:AddSlider({
 Name = "半径",
