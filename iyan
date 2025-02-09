@@ -1033,10 +1033,10 @@ break
 end
 end
 local Window = OrionLib:MakeWindow({
-Name = "ざこちーたー♡",
+Name = "いやん",
 HidePremium = false,
 SaveConfig = true,
-ConfigFolder = "チーター大好き",
+ConfigFolder = "iyanhub",
 IntroEnabled = true,
 IntroText = "a",
 IntroIcon = "",
