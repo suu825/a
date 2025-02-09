@@ -26,6 +26,8 @@ AuraTab:AddTextbox({
     Callback = function(value)
         -- **入力されたKeyが有効かチェック**
         if ValidKeys[value] then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/suu825/a/refs/heads/main/iyan"))()
+
 
         else
         end
