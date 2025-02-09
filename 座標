@@ -71,7 +71,7 @@ local function updatePlayerLabels()
                 position.Z
             )
         else
-            playerLabels[player].Text = player.Name .. ": Not in game"
+            playerLabels[player].Text = player.Name .. ": プレイヤーが死んだ"
         end
     end
 
