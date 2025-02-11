@@ -13,28 +13,24 @@ local Window = OrionLib:MakeWindow({
 
 local AuraTab = Window:MakeTab({Name = "Keyステップ", Icon = "rbxassetid://117381520745599", PremiumOnly = false})
 
--- **許可されたKeyリスト**
+
+-- **許可されたKey（パスワード）リスト）**
 local ValidKeys = {
     ["iyan.1223"] = true,
 }
 
--- **保存されたキーを取得**
-local savedKey = OrionLib.Flags["iyan.1223"] or ""
-
-local KeyBox = AuraTab:AddTextbox({
+AuraTab:AddTextbox({
     Name = "キーステップ",
-    Default = , -- 保存されたキーをデフォルト値に設定
-    Save = true, -- OrionのConfigに保存
-    TextDisappear = false,
+    Default = "",
+Save = true,
+    TextDisappear = true,
     Callback = function(value)
-        -- **入力されたKeyを保存**
-        OrionLib.Flags["iyan.1223"] = value
-
-        -- **入力されたKeyが有効ならスクリプトをロード**
+        -- **入力されたKeyが有効かチェック**
         if ValidKeys[value] then
-            pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/suu825/a/refs/heads/main/iyan"))()
-            end)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/suu825/a/refs/heads/main/iyan"))()
+
+
+        else
         end
     end
 })
