@@ -22,7 +22,6 @@ local ValidKeys = {
 AuraTab:AddTextbox({
     Name = "キーステップ",
     Default = "",
-Save = true,
     TextDisappear = true,
     Callback = function(value)
         -- **入力されたKeyが有効かチェック**
