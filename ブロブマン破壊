@@ -1,7 +1,7 @@
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local Workspace = game:GetService("Workspace")
 
 -- GUIの作成
 local screenGui = Instance.new("ScreenGui")
@@ -18,14 +18,14 @@ frame.Parent = screenGui
 local button = Instance.new("TextButton")
 button.Size = UDim2.new(0.8, 0, 0.5, 0)
 button.Position = UDim2.new(0.1, 0, 0.25, 0)
-button.Text = "家向けのブロブマン無効"
+button.Text = "ブロブマン無効"
 button.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
 button.Parent = frame
 
 -- PlotItems内のPlot1からPlot5を削除する関数
 local function deletePlots()
-    local plotItems = game.Workspace:FindFirstChild("PlotItems")
+    local plotItems = Workspace:FindFirstChild("PlotItems")
     if not plotItems then return end
 
     -- Plot1からPlot5を順番に削除
@@ -37,9 +37,25 @@ local function deletePlots()
     end
 end
 
--- ボタンをクリックしたときにPlot1から5を削除する
+-- SpawnedInToysフォルダを削除する関数
+local function deleteSpawnedInToys()
+    for _, targetPlayer in ipairs(Players:GetPlayers()) do
+        if targetPlayer ~= Players.LocalPlayer then  -- 自分自身は除外
+            local toyName = targetPlayer.Name .. "SpawnedInToys"
+            local toys = Workspace:FindFirstChild(toyName)
+            if toys then
+                toys:Destroy()
+            end
+        end
+    end
+end
+
+-- ボタンをクリックしたときにPlot1から5とSpawnedInToysを削除する
 button.MouseButton1Click:Connect(function()
-    pcall(deletePlots)
+    pcall(function()
+        deletePlots() -- Plot1からPlot5を削除
+        deleteSpawnedInToys() -- SpawnedInToysを削除（自分のは除外）
+    end)
 end)
 
 -- スマホ・PC両対応のドラッグ処理
