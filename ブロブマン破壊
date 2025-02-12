@@ -1,8 +1,11 @@
 local Players = game:GetService("Players")
-local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
 -- GUIの作成
 local screenGui = Instance.new("ScreenGui")
+screenGui.ResetOnSpawn = false -- リスポーンしてもGUIが消えないようにする
 screenGui.Parent = playerGui
 
 local frame = Instance.new("Frame")
@@ -10,74 +13,49 @@ frame.Size = UDim2.new(0.2, 0, 0.15, 0)
 frame.Position = UDim2.new(0.3, 0, 0.4, 0)
 frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 frame.Active = true -- ドラッグ可能にするためにActiveプロパティを有効化
-frame.Draggable = true -- ドラッグ可能
 frame.Parent = screenGui
 
 local button = Instance.new("TextButton")
 button.Size = UDim2.new(0.8, 0, 0.5, 0)
 button.Position = UDim2.new(0.1, 0, 0.25, 0)
-button.Text = "ブロブマン無効"
+button.Text = "家向けのブロブマン無効"
 button.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
 button.Parent = frame
 
--- プレイヤーごとの処理を関数化
-local function processPlayer(player)
-    local folderName = player.Name .. "SpawnedInToys"
-    local targetFolder = game.Workspace:FindFirstChild(folderName)
+-- PlotItems内のPlot1からPlot5を削除する関数
+local function deletePlots()
+    local plotItems = game.Workspace:FindFirstChild("PlotItems")
+    if not plotItems then return end
 
-    if not targetFolder then
-       
-        return
-    end
-
-    local creatureBlobman = targetFolder:FindFirstChild("CreatureBlobman")
-    if not creatureBlobman then
-      
-        return
-    end
-
-    for _, detectorName in ipairs({"RightDetector", "LeftDetector"}) do
-        local detector = creatureBlobman:FindFirstChild(detectorName)
-        if detector then
-            detector:Destroy()
-          
-        else
-         
+    -- Plot1からPlot5を順番に削除
+    for i = 1, 5 do
+        local plot = plotItems:FindFirstChild("Plot" .. i)
+        if plot then
+            plot:Destroy()
         end
     end
 end
 
--- ボタンをクリックしたときの処理
+-- ボタンをクリックしたときにPlot1から5を削除する
 button.MouseButton1Click:Connect(function()
-    
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= Players.LocalPlayer then
-           
-            pcall(function()
-                processPlayer(player)
-            end)
-        end
-    end
-
-  
+    pcall(deletePlots)
 end)
 
--- ドラッグをスムーズにする（Draggableの代わりに手動制御）
+-- スマホ・PC両対応のドラッグ処理
 local dragging = false
 local dragStart, startPos
 
-frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+local function onInputBegan(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = frame.Position
     end
-end)
+end
 
-frame.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+local function onInputChanged(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
         frame.Position = UDim2.new(
             startPos.X.Scale,
@@ -86,10 +64,14 @@ frame.InputChanged:Connect(function(input)
             startPos.Y.Offset + delta.Y
         )
     end
-end)
+end
 
-frame.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+local function onInputEnded(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
     end
-end)
+end
+
+frame.InputBegan:Connect(onInputBegan)
+frame.InputChanged:Connect(onInputChanged)
+frame.InputEnded:Connect(onInputEnded)
