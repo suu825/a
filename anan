@@ -16,7 +16,7 @@ local AuraTab = Window:MakeTab({Name = "Keyステップ", Icon = "rbxassetid://1
 
 -- **許可されたKey（パスワード）リスト）**
 local ValidKeys = {
-    ["iyan.5555"] = true,
+    ["iyan.9999"] = true,
 }
 
 AuraTab:AddTextbox({
