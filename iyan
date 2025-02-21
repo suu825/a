@@ -2322,7 +2322,95 @@ blobalter = G_e
 end
 end
 end
+Players = game:GetService("Players")
+ playerNames = {}
 
+for _, player in ipairs(Players:GetPlayers()) do
+    table.insert(playerNames, player.Name)
+end
+
+
+
+local playerDropdown = BlobmanTab:AddDropdown({
+    Name = "Bringしたいプレイヤーを選択",
+    Options = playerNames, -- 後でプレイヤーのリストを追加します
+    Default = nil,
+    Callback = function(selectedPlayerName)
+        -- 選択されたプレイヤーに関連する処理
+        currentTargetPlayer = Players:FindFirstChild(selectedPlayerName)
+    end
+})
+
+function Refresha()
+    playerNames = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+    Dropdown:Refresh(playerNames, true)
+end
+
+Players.PlayerAdded:Connect(function()
+Refresha()
+end)
+
+Players.PlayerRemoving:Connect(function()
+    Refresha()
+end)
+
+local blobman1
+blobman1 = BlobmanTab:AddToggle({
+    Name = "選択したプレイヤーをBring",
+    Default = false,
+    Callback = function(enabled)
+        if enabled then
+            print("Toggle enabled")
+            blobmanCoroutine = coroutine.create(function()
+                local foundBlobman = false
+                for _, v in pairs(game.Workspace:GetDescendants()) do
+                    if v.Name == "CreatureBlobman" then
+                        print("Found CreatureBlobman")
+                        if v:FindFirstChild("VehicleSeat") and v.VehicleSeat:FindFirstChild("SeatWeld") and isDescendantOf(v.VehicleSeat.SeatWeld.Part1, localPlayer.Character) then
+                            print("Mounted on blobman")
+                            blobman = v
+                            foundBlobman = true
+                            break
+                        end
+                    end
+                end
+                
+       
+
+                if not foundBlobman then
+              
+                    blobman1:Set(false)
+                    blobman = nil
+                    coroutine.close(blobmanCoroutine)
+                    blobmanCoroutine = nil
+                    return
+                end
+                while true do
+                    pcall(function()
+                        while wait() do
+                            if currentTargetPlayer and blobman then 
+                                -- 選択されたプレイヤーを掴む処理 
+                                blobGrabPlayer(currentTargetPlayer, blobman)
+                                wait() -- 適宜間隔を調整可能 
+                            end 
+                        end 
+                    end)
+                    wait() 
+                end 
+            end)
+            coroutine.resume(blobmanCoroutine)
+        else 
+            if blobmanCoroutine then 
+                coroutine.close(blobmanCoroutine) 
+                blobmanCoroutine = nil 
+                blobman = nil 
+            end 
+        end 
+    end 
+})
 friendModeEnabled = false
 blobmanG_e = BlobmanTab:AddToggle({
 Name = "キックALL",
