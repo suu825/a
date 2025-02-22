@@ -12,7 +12,7 @@ Players = game:GetService("Players")
 local flingCoroutine = nil
 function processPart(part)
 local character = Players.LocalPlayer.Character
-if not toggleBringEnabled or not character or not :FindFirstChild("Head") or not part:IsA("BasePart") then
+if not toggleBringEnabled or not character or not character:FindFirstChild("Head") or not part:IsA("BasePart") then
 return
 end
 if part.Anchored or part:IsDescendantOf(character) then
