@@ -1,18 +1,18 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/suu825/a/refs/heads/main/w"))()
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Debris = game:GetService("Debris")
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
-local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
+ Players = game:GetService("Players")
+ ReplicatedStorage = game:GetService("ReplicatedStorage")
+ Debris = game:GetService("Debris")
+ Players = game:GetService("Players")
+ Workspace = game:GetService("Workspace")
+ ReplicatedStorage = game:GetService("ReplicatedStorage")
+ GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
+ SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
 Workspace = game:GetService("Workspace")
 Players = game:GetService("Players")
 local flingCoroutine = nil
 function processPart(part)
 local character = Players.LocalPlayer.Character
-if not toggleBringEnabled or not character or not character:FindFirstChild("Head") or not part:IsA("BasePart") then
+if not toggleBringEnabled or not character or not :FindFirstChild("Head") or not part:IsA("BasePart") then
 return
 end
 if part.Anchored or part:IsDescendantOf(character) then
@@ -25,7 +25,7 @@ end
 if not part:FindFirstChildOfClass("BodyPosition") then
 local ForceInstance = Instance.new("BodyPosition")
 ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-ForceInstance.Position = Vector3.new(0, 20000000, 0)
+ForceInstance.Position = Vector3.new(0, R_raaa, 0)
 ForceInstance.P = 6000000000000
 ForceInstance.D = 6000000
 ForceInstance.Parent = part
@@ -198,8 +198,8 @@ end
 end
 return objects
 end
-local GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
-local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
+ GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
+ SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
 local ObjectGrabDistance = 25
 local auraCoroutine = nil
 local targetObjects = {"Part", "SoundPart", "BalloonModel", "BookManyPages", "BookNormal", "Airhorn", "HitboxBody", "Boombox", "Hitbox", "HitboxPart", "FactoryTable", "Pyramid", "FutureAngularDesk", "PlankMaker", "OvenMicrowaveWhite", "MeshPart", "OctagonBall", "FoodHotSauce", "TrussPart", "Chest", "Hoop", "Body", "BombMissile", "Wedge", "PaperPlane", "DiceBig", "MidiMakr", "BellSmall", "UnionOperation"}
@@ -221,20 +221,20 @@ end
 end)
 end
 end
-local Players = game:GetService("Players")
+ Players = game:GetService("Players")
 local playerNames = {}
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Debris = game:GetService("Debris")
-local GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
-local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
-local Players = game:GetService("Players")
+ Players = game:GetService("Players")
+ ReplicatedStorage = game:GetService("ReplicatedStorage")
+ Debris = game:GetService("Debris")
+ GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
+ SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
+ Players = game:GetService("Players")
 local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
-local HttpService = game:GetService("HttpService")
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+ HttpService = game:GetService("HttpService")
+ RunService = game:GetService("RunService")
+ Players = game:GetService("Players")
+ UserInputService = game:GetService("UserInputService")
+ ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
 local GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
 local MenuToys = ReplicatedStorage:WaitForChild("MenuToys")
@@ -1259,25 +1259,6 @@ end
 end
 })
 ServerTab:AddButton({
-Name = "サーバークラッシュV3",
-Callback = function()
-local startTime = tick()
-local isLooping = true
-while isLooping do
-for i = 1, 1000000 do
-game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
-workspace:FindFirstChildOfClass("Part"),
-CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0))
-)
-end
-wait()
-if tick() - startTime >= wait(0.1) then
-isLooping = false
-end
-end
-end
-})
-ServerTab:AddButton({
 Name = "弱いラグサーバー",
 Callback = function()
 local startTime = tick()
@@ -2083,6 +2064,22 @@ cleanupBringReduction()
 end
 end
 })
+
+
+DefenseTab:AddSlider({
+    Name = "Bring軽減座標",
+    Min = -50000000,
+    Max = 50000000,
+    Color = Color3.fromRGB(255, 255, 255),
+    ValueName = ".",
+    Increment = 1000000,
+    Default = 0 ,
+    Callback = function(value)
+        R_raaa = value
+    end
+    })
+
+
 DefenseTab:AddToggle({
 Name = "アンチリスキル",
 Default = false,
