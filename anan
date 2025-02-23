@@ -2629,6 +2629,46 @@ else
 end
 end
 })
+
+BlobmanTab:AddButton({
+    Name = "38桁座標いもり",
+    Callback = function()
+    local function findBlobman()
+    for _, v in pairs(workspace:GetDescendants()) do
+    if v.Name == "CreatureBlobman" then
+    if v:FindFirstChild("VehicleSeat") and v.VehicleSeat:FindFirstChild("SeatWeld") and v.VehicleSeat.SeatWeld.Part1:IsDescendantOf(game.Players.LocalPlayer.Character) then
+    return v
+    end
+    end
+    end
+    return nil
+    end
+    local blobman = findBlobman()
+    if blobman then
+    if not blobman.PrimaryPart then
+    blobman.PrimaryPart = blobman:FindFirstChild("HumanoidRootPart") or blobman:FindFirstChild("MainPart") or blobman:FindFirstChildWhichIsA("BasePart")
+    end
+    if blobman.PrimaryPart then
+    local positions = {Vector3.new(5e+33, 0, 0), Vector3.new(5e+34, 0, 0), Vector3.new(0, 5e+38, 0), Vector3.new(0, 0, 5e+33),
+    Vector3.new(0, 0, 5e+34), Vector3.new(-12, -40, 7)}
+    local index = 1
+    while true do
+    task. wait()
+    if index > #positions then
+    index = 1
+    end
+    local newPosition = positions[index]
+    blobman:SetPrimaryPartCFrame(CFrame.new(newPosition))
+    index = index + 1
+    end
+    else
+    end
+    else
+    end
+    end
+    })
+
+
 BlobmanTab:AddLabel("左手なら1、両手なら1、右手なら2")
 BlobmanTab:AddLabel("両手ALLについては、他のやつを1にして")
 BlobmanTab:AddSlider({
