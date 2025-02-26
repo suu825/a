@@ -1,0 +1,35 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
+
+local function deletePlots()
+    local plotItems = Workspace:FindFirstChild("PlotItems")
+    if not plotItems then return end
+
+    -- Plot1からPlot5を順番に削除
+    for i = 1, 5 do
+        local plot = plotItems:FindFirstChild("Plot" .. i)
+        if plot then
+            plot:Destroy()
+        end
+    end
+end
+
+-- SpawnedInToysフォルダを削除する関数
+local function deleteSpawnedInToys()
+    for _, targetPlayer in ipairs(Players:GetPlayers()) do
+        if targetPlayer ~= Players.LocalPlayer then  -- 自分自身は除外
+            local toyName = targetPlayer.Name .. "SpawnedInToys"
+            local toys = Workspace:FindFirstChild(toyName)
+            if toys then
+                toys:Destroy()
+            end
+        end
+    end
+end
+
+-- Plot1から5とSpawnedInToysを削除
+pcall(function()
+    deletePlots() -- Plot1からPlot5を削除
+    deleteSpawnedInToys() -- SpawnedInToysを削除（自分のは除外）
+end)
