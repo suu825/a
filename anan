@@ -2668,6 +2668,60 @@ BlobmanTab:AddButton({
     end
     })
 
+    BlobmanTab:AddButton({
+        Name = "準突破無効",
+        Callback = function()
+        local function findBlobman()
+        for _, v in pairs(workspace:GetDescendants()) do
+        if v.Name == "CreatureBlobman" then
+        if v:FindFirstChild("VehicleSeat") and v.VehicleSeat:FindFirstChild("SeatWeld") and v.VehicleSeat.SeatWeld.Part1:IsDescendantOf(game.Players.LocalPlayer.Character) then
+        return v
+        end
+        end
+        end
+        return nil
+        end
+        local blobman = findBlobman()
+        if blobman then
+        if not blobman.PrimaryPart then
+        blobman.PrimaryPart = blobman:FindFirstChild("HumanoidRootPart") or blobman:FindFirstChild("MainPart") or blobman:FindFirstChildWhichIsA("BasePart")
+        end
+        if blobman.PrimaryPart then
+        local positions = {Vector3.new(0, 10000000, 0), Vector3.new(0, 11000000, 0), Vector3.new(0, 12000000, 0), Vector3.new(0, 13000000, 0),
+        Vector3.new(0, 14000000, 0), Vector3.new(0, 15000000, 0), Vector3.new(0, 16000000, 0), Vector3.new(0, 17000000, 0), Vector3.new(0, 18000000, 0), Vector3.new(0, 19000000, 0), Vector3.new(0,20000000, 0)}
+        local index = 1
+        while true do
+        task. wait(S_U)
+        if index > #positions then
+        index = 1
+        end
+        local newPosition = positions[index]
+        blobman:SetPrimaryPartCFrame(CFrame.new(newPosition))
+        index = index + 1
+        end
+        else
+        end
+        else
+        end
+        end
+        })
+    
+
+
+        BlobmanTab:AddSlider({
+            Name = "準突破無効.タイム",
+            Min = 0.001,
+            Max = 1,
+            Color = Color3.fromRGB(255, 255, 255),
+            ValueName = ".",
+            Increment = 0.01,
+            Default = 0.25 ,
+            Callback = function(value)
+            S_U  = value
+            end
+            })
+
+
 
 BlobmanTab:AddLabel("左手なら1、両手なら1、右手なら2")
 BlobmanTab:AddLabel("両手ALLについては、他のやつを1にして")
