@@ -9100,5 +9100,157 @@ end
 })
 
 
+
+-- ローカルプレイヤーとキャラクターの取得
+local localPlayer = game.Players.LocalPlayer
+local playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+
+-- キャラクターが追加されたときに新しいキャラクターをセットするイベント
+localPlayer.CharacterAdded:Connect(function(character)
+    playerCharacter = character
+end)
+
+-- プレイヤーがスポーンさせたおもちゃを格納するフォルダを取得
+local toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
+ autoEnabled = false  -- 自動モードの有効状態
+local targetPlayerName = ""  -- ターゲットプレイヤーの名前
+
+-- ランダムなベクトルを生成する関数
+ function getRandomVector(min, max)
+    return Vector3.new(
+        math.random(min, max),  -- x座標のランダム値
+        math.random(min, max),  -- y座標のランダム値
+        math.random(min, max)   -- z座標のランダム値
+    )
+end
+
+-- BallSnowballをスポーンさせる関数
+ function spawnSnowball()
+    task.spawn(function()
+        local rotation = Vector3.new(0, 0, 0)  -- スポーン時の回転設定
+        local success, err = pcall(function()
+            game:GetService("ReplicatedStorage").MenuToys.SpawnToyRemoteFunction:InvokeServer("BallSnowball", playerCharacter.Head.CFrame, rotation)
+        end)
+        if success then
+            
+        else
+             end
+    end)
+end
+
+-- スポーンされたBallSnowballを検索する関数
+ function findSnowball()
+    if not toysFolder then  -- toysFolderが未定義の場合は再取得する
+        toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
+    end
+
+    if toysFolder then
+        for _, item in pairs(toysFolder:GetChildren()) do  -- toysFolder内のアイテムをすべて確認する
+            if item.Name == "BallSnowball" then  -- アイテムがBallSnowballであるか確認する
+                return item  -- 見つかった場合、アイテムを返す
+            end
+        end
+    end
+
+    return nil  -- 見つからない場合はnilを返す
+end
+
+-- ターゲットプレイヤーにテレポートして物体を荒ぶらせる関数
+ function teleportAndShake(item, targetPlayer)
+    if item and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then 
+        -- ターゲットにテレポートする位置を設定
+        local targetPos = targetPlayer.Character.HumanoidRootPart.CFrame  
+        item.CFrame = targetPos  -- アイテムの位置を更新
+        
+        -- ランダムな速度と回転を設定して荒ぶらせる
+        item.AssemblyLinearVelocity = getRandomVector(-100, 100)
+        item.AssemblyAngularVelocity = getRandomVector(-50, 50)
+    end  
+end
+
+-- 自動的にテレポートして荒ぶらせる処理を行う関数 
+ function autoTeleportAndShake()
+    while autoEnabled do  -- 自動が有効な限り繰り返す 
+        pcall(function()  
+            local snowball = findSnowball()  -- Snowballを見つける 
+            if not snowball then  
+                spawnSnowball()  -- Snowballが見つからない場合は新しくスポーンさせる 
+                wait()  -- スポーン待ち 
+            else 
+                local targetPlayer = game.Players:FindFirstChild(targetPlayerName)  -- ターゲットプレイヤーを取得
+                if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    for _, child in pairs(snowball:GetChildren()) do  
+                        if child:IsA("BasePart") then   -- 子要素がBasePartである場合のみ処理 
+                            teleportAndShake(child, targetPlayer)  
+                        end  
+                    end  
+                end
+            end  
+        end)  
+        wait() -- テレポート間隔 
+    end  
+end
+
+-- 自動テレポートと荒ぶり機能のトグル処理 
+function toggleAutoTeleportAndShake(enabled) 
+    autoEnabled = enabled  
+    if enabled then 
+        
+        task.spawn(autoTeleportAndShake) 
+    else 
+        
+    end  
+end 
+
+-- プレイヤーリストを取得する関数
+ Players = game:GetService("Players")
+local playerNames = {}
+
+ function update1()
+    playerNames = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+end
+
+-- プレイヤーリストの更新
+update1()
+
+-- UIタブ作成
+
+-- ドロップダウンメニューの作成
+local playerDropdown = freezeATab:AddDropdown({
+    Name = "無敵突破したいプレイヤーを選択",
+    Options = playerNames,
+    Default = nil,
+    Callback = function(selectedPlayerName)
+        targetPlayerName = selectedPlayerName  -- 選択されたプレイヤー名を更新
+    end
+})
+
+-- プレイヤー追加時にリストを更新
+Players.PlayerAdded:Connect(function()
+    update1()  -- プレイヤーリストの更新
+    playerDropdown:Refresh(playerNames, true)  -- ドロップダウンリストを更新
+end)
+
+-- プレイヤー削除時にリストを更新
+Players.PlayerRemoving:Connect(function()
+    update1()  -- プレイヤーリストの更新
+    playerDropdown:Refresh(playerNames, true)  -- ドロップダウンリストを更新
+end)
+
+-- 自動無敵突破機能のトグル
+freezeATab:AddToggle({   
+    Name = "無敵突破",   
+    Default = false,   
+    Callback = function(enabled)    
+        toggleAutoTeleportAndShake(enabled)  
+    end   
+}) 
+
+-- UI初期化    
+OrionLib:Init()
+
 OrionLib:MakeNotification({Name = "a", Content = "a", Image = "rbxassetid://4483345998", Time = 5})
 OrionLib:Init()
