@@ -9127,7 +9127,7 @@ end
 -- BallSnowballをスポーンさせる関数
  function spawnSnowball()
     task.spawn(function()
-        local rotation = Vector3.new(0, 0, 0)  -- スポーン時の回転設定
+        local rotation = Vector3.new(0, 999, 100)  -- スポーン時の回転設定
         local success, err = pcall(function()
             game:GetService("ReplicatedStorage").MenuToys.SpawnToyRemoteFunction:InvokeServer("BallSnowball", playerCharacter.Head.CFrame, rotation)
         end)
@@ -9147,7 +9147,7 @@ end
     if toysFolder then
         for _, item in pairs(toysFolder:GetChildren()) do  -- toysFolder内のアイテムをすべて確認する
             if item.Name == "BallSnowball" then  -- アイテムがBallSnowballであるか確認する
-                return item  -- 見つかった場合、アイテムを返す
+                return item  -- 見つかった場合、アイテムを返
             end
         end
     end
@@ -9155,16 +9155,38 @@ end
     return nil  -- 見つからない場合はnilを返す
 end
 
--- ターゲットプレイヤーにテレポートして物体を荒ぶらせる関数
- function teleportAndShake(item, targetPlayer)
-    if item and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then 
-        -- ターゲットにテレポートする位置を設定
-        local targetPos = targetPlayer.Character.HumanoidRootPart.CFrame  
-        item.CFrame = targetPos  -- アイテムの位置を更新
+
+-- 英語名と日本語名のマッピング
+local bodyPartsMap = {
+    Head = "頭",
+    Torso = "胴体",
+   
+}
+
+local bodyParts = {}
+for englishName, japaneseName in pairs(bodyPartsMap) do
+    table.insert(bodyParts, japaneseName)  -- 日本語名をリストに追加
+end
+
+local targetBodyPartName = ""  
+
+-- ドロップダウンメニューの作成
+
+
+-- ターゲットプレイヤーにテレポートして物体を荒ぶらせる関数（更新版）
+function teleportAndShake(item, targetPlayer)
+    if item and targetPlayer and targetPlayer.Character then 
+        local targetPart = targetPlayer.Character:FindFirstChild(targetBodyPartName)  -- 選択された部位を取得
         
-        -- ランダムな速度と回転を設定して荒ぶらせる
-        item.AssemblyLinearVelocity = getRandomVector(-100, 100)
-        item.AssemblyAngularVelocity = getRandomVector(-50, 50)
+        if targetPart then  -- 部位が見つかった場合のみ処理
+            -- ターゲットにテレポートする位置を設定
+            local targetPos = targetPart.CFrame  
+            item.CFrame = targetPos  -- アイテムの位置を更新
+            
+            -- ランダムな速度と回転を設定して荒ぶらせる
+            item.AssemblyLinearVelocity = getRandomVector(-111, 120)
+            item.AssemblyAngularVelocity = getRandomVector(-500, 500)
+        end  
     end  
 end
 
@@ -9248,6 +9270,21 @@ freezeATab:AddToggle({
         toggleAutoTeleportAndShake(enabled)  
     end   
 }) 
+
+local partDropdown = freezeATab:AddDropdown({
+    Name = "当てる部位",
+    Options = bodyParts,
+    Default = nil,
+    Callback = function(selectedBodyPartName)
+        -- 選択された日本語名に対応する英語名を取得
+        for englishName, japaneseName in pairs(bodyPartsMap) do
+            if japaneseName == selectedBodyPartName then
+                targetBodyPartName = englishName  -- 英語名を設定
+                break
+            end
+        end
+    end
+})
 
 -- UI初期化    
 OrionLib:Init()
