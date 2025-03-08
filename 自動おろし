@@ -1,0 +1,232 @@
+-- 必要なサービス
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- ローカルプレイヤー
+local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:WaitForChild("PlayerGui")
+
+-- GUI の作成
+local screenGui = Instance.new("ScreenGui", playerGui)
+screenGui.Name = "CustomPlayerList"
+screenGui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 200, 0, 150)
+frame.Position = UDim2.new(0.5, -100, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderSizePixel = 0
+
+-- ドロップダウンボタン
+local dropdown = Instance.new("TextButton", frame)
+dropdown.Size = UDim2.new(1, -10, 0, 30)
+dropdown.Position = UDim2.new(0, 5, 0, 5)
+dropdown.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
+dropdown.Text = "降ろしたいプレイヤーを選択"
+
+-- ドロップダウンリスト用のフレーム
+local dropdownFrame = Instance.new("Frame", frame)
+dropdownFrame.Size = UDim2.new(1, -10, 0, 90)
+dropdownFrame.Position = UDim2.new(0, 5, 0, 35)
+dropdownFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+dropdownFrame.Visible = false
+dropdownFrame.ClipsDescendants = true
+
+-- スクロール機能
+local scrollingFrame = Instance.new("ScrollingFrame", dropdownFrame)
+scrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+scrollingFrame.ScrollBarThickness = 8
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+-- UIListLayout の追加
+local layout = Instance.new("UIListLayout", scrollingFrame)
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- プレイヤーリスト管理
+local playerButtons = {}
+local targetPlayerName = ""
+
+-- CanvasSize を自動更新
+local function updateCanvasSize()
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+end
+
+-- プレイヤーリストを更新
+local function updatePlayerList()
+    for _, button in pairs(playerButtons) do
+        button:Destroy()
+    end
+    playerButtons = {}
+
+    for _, p in ipairs(Players:GetPlayers()) do
+        local button = Instance.new("TextButton")
+        button.Size = UDim2.new(1, 0, 0, 30)
+        button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        button.Text = p.Name
+        button.Parent = scrollingFrame
+
+        button.MouseButton1Click:Connect(function()
+            dropdown.Text = "降ろすプレイヤー" .. p.Name
+            targetPlayerName = p.Name
+            dropdownFrame.Visible = false
+        end)
+
+        table.insert(playerButtons, button)
+    end
+
+    updateCanvasSize()
+end
+
+-- プレイヤーの入退出時にリストを更新
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
+
+-- ドロップダウンの開閉
+dropdown.MouseButton1Click:Connect(function()
+    dropdownFrame.Visible = not dropdownFrame.Visible
+    if dropdownFrame.Visible then
+        updatePlayerList()
+    end
+end)
+
+-- 初回リスト更新
+updatePlayerList()
+
+-- ドラッグ用の変数
+local dragging = false
+local dragInput, dragStart, startPos
+
+-- ドラッグ処理
+local function onInputBegan(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end
+
+-- 移動処理
+local function onInputChanged(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end
+
+-- ドラッグ終了処理
+local function onInputEnded(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end
+
+-- ドラッグ開始、移動、終了のイベントを接続
+frame.InputBegan:Connect(onInputBegan)
+frame.InputChanged:Connect(onInputChanged)
+frame.InputEnded:Connect(onInputEnded)
+
+-- 自動無敵突破機能の追加
+
+local autoEnabled = false  -- 自動モードの有効状態
+
+-- ランダムなベクトルを生成する関数
+local function getRandomVector(min, max)
+    return Vector3.new(
+        math.random(min, max),
+        math.random(min, max),
+        math.random(min, max)
+    )
+end
+
+-- BallSnowballをスポーンさせる関数
+local function spawnSnowball()
+    task.spawn(function()
+        local rotation = Vector3.new(0, 0, 0)
+        local success, err = pcall(function()
+            game:GetService("ReplicatedStorage").MenuToys.SpawnToyRemoteFunction:InvokeServer("BallSnowball", localPlayer.Character.Head.CFrame, rotation)
+        end)
+        if success then
+            
+        else
+            
+        end
+    end)
+end
+
+-- スポーンされたBallSnowballを検索する関数
+local function findSnowball()
+    local toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
+    if toysFolder then
+        for _, item in pairs(toysFolder:GetChildren()) do
+            if item.Name == "BallSnowball" then
+                return item
+            end
+        end
+    end
+    return nil
+end
+
+-- ターゲットプレイヤーにテレポートして物体を荒ぶらせる関数
+local function teleportAndShake(item, targetPlayer)
+    if item and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local targetPos = targetPlayer.Character.HumanoidRootPart.CFrame
+        item.CFrame = targetPos
+        item.AssemblyLinearVelocity = getRandomVector(-100, 100)
+        item.AssemblyAngularVelocity = getRandomVector(-50, 50)
+    end
+end
+
+-- 自動的にテレポートして荒ぶらせる処理を行う関数
+local function autoTeleportAndShake()
+    while autoEnabled do
+        local snowball = findSnowball()
+        if not snowball then
+            spawnSnowball()
+            wait()
+        else
+            local targetPlayer = game.Players:FindFirstChild(targetPlayerName)
+            if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                for _, child in pairs(snowball:GetChildren()) do
+                    if child:IsA("BasePart") then
+                        teleportAndShake(child, targetPlayer)
+                    end
+                end
+            end
+        end
+        wait()
+    end
+end
+
+-- 自動無敵突破機能のトグル処理
+local function toggleAutoTeleportAndShake(enabled)
+    autoEnabled = enabled
+    if enabled then
+        task.spawn(autoTeleportAndShake)
+    end
+end
+
+-- 無敵突破タブの作成
+local toggleButton = Instance.new("TextButton", frame)
+toggleButton.Size = UDim2.new(1, -10, 0, 30)
+toggleButton.Position = UDim2.new(0, 5, 0, 115)
+toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Text = "自動降ろし　オフ"  -- 初期状態を「無効」に設定
+
+-- トグルボタンがクリックされたときにテキストを切り替える
+toggleButton.MouseButton1Click:Connect(function()
+    autoEnabled = not autoEnabled
+    toggleAutoTeleportAndShake(autoEnabled)
+    
+    if autoEnabled then
+        toggleButton.Text = "自動降ろし　オン"
+    else
+        toggleButton.Text = "自動降ろし　オフ"
+    end
+end)
