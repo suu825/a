@@ -2583,7 +2583,7 @@ BlobmanTab:AddToggle({
                             end
                         end
                     end); if not success then warn("Error in Aura: " .. tostring(err)); end
-                    wait(999)
+                    wait()
                 end
             end); 
             coroutine.resume(auraCoroutine); blobmanCoroutine = coroutine.create(function()
@@ -2616,9 +2616,9 @@ BlobmanTab:AddToggle({
                         end
                     end
                     for i, v in pairs(Players:GetChildren()) do
-                        if (blobman and (v ~= localPlayer)) then
-                            blobGrabPlayer(
-                                v, blobman);
+                     if blobman and v ~= localPlayer then
+                            if not friendModeEnabled or (friendModeEnabled and not localPlayer:IsFriendsWith(v.UserId)) then
+                            blobGrabPlayer(v, blobman)
                         end
                     end
                     wait(grabInterval); for i, v in pairs(Players:GetChildren()) do
@@ -2626,14 +2626,17 @@ BlobmanTab:AddToggle({
                             movePlayerUpward(v);
                         end
                     end
+                    end
                 end
-            end); coroutine.resume(blobmanCoroutine);
+            end)
+             coroutine.resume(blobmanCoroutine)
         else
             if auraCoroutine then
                 coroutine.close(auraCoroutine); auraCoroutine = nil;
             end
             controlledPlayers = {}; if blobmanCoroutine then
-                coroutine.close(blobmanCoroutine); blobmanCoroutine = nil; blobman = nil;
+                coroutine.close(blobmanCoroutine);
+                 blobmanCoroutine = nil; blobman = nil;
             end
         end
     end
@@ -8994,82 +8997,6 @@ end
 
 
 
--- 必要なサービス
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Debris = game:GetService("Debris")
-
--- イベントの取得
-local GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
-local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
-
--- オーラの設定
-local auraRadius = 21
-local auraCoroutine = nil
-local targetObjects = {"SprayaaCanWD", "SquarePyramid", "Hitbox", "Main", "Part", "SoundPart", "StickyRemoverPart", "Straw", "Wedge", "BallSnowball", "SnowRagdollPart", "Ball80"}
-
-
--- 対象のオブジェクトを取得する関数
-local function getTargetObjects()
-local objects = {}
-for _, descendant in ipairs(workspace:GetDescendants()) do
-if descendant:IsA("BasePart") and table.find(targetObjects, descendant.Name) then
-table.insert(objects, descendant)
-end
-end
-return objects
-end
-
--- オブジェクトを掴む機能
-local function grabObject(part, playerCFrame)
-if part:IsA("BasePart") then
--- SetNetworkOwnerを使って物理的に掴む
-SetNetworkOwner:FireServer(part, playerCFrame)
-
--- 掴む状態を1秒後に解除
-task.delay(99999999999999999999, function()
-if part and part.Parent then
--- 掴み解除後の処理を追加可能
-end
-end)
-end
-
-end
-
-
-local function processAura()
-while true do
-local success, err = pcall(function()
-local character = Players.LocalPlayer.Character
-if character and character:FindFirstChild("HumanoidRootPart") then
-local humanoidRootPart = character.HumanoidRootPart
-local playerCFrame = humanoidRootPart.CFrame
-
-local objects = getTargetObjects()
-for _, obj in pairs(objects) do
-local distance = (obj.Position - humanoidRootPart.Position).Magnitude
-if distance <= auraRadius then
-grabObject(obj, playerCFrame)
-
-task.delay(6, function()
-
-end)
-end
-end
-end
-end)
-
-if not success then
-
-end
-
-wait(0)
-
-end
-
-end
-
-
 local localPlayer = game.Players.LocalPlayer
  playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 
@@ -9203,20 +9130,12 @@ freezeATab:AddToggle({
             -- 無敵突破を有効化
             toggleAutoTeleportAndShake(true)
 
-            -- 無敵突破が機能しない時のオーラ処理も同時に開始
-            if not auraCoroutine then
-                auraCoroutine = coroutine.create(processAura)
-                coroutine.resume(auraCoroutine)
-            end
-        else
-            -- 無敵突破を無効化
+            else
+
             toggleAutoTeleportAndShake(false)
 
             -- 無敵突破が機能しない時のオーラ処理を停止
-            if auraCoroutine then
-                coroutine.close(auraCoroutine)
-                auraCoroutine = nil
-            end
+
         end
     end
 })
