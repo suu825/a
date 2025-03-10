@@ -1762,30 +1762,7 @@ end
 end
 end
 })
-Players = game:GetService("Players")
-LocalPlayer = Players.LocalPlayer
-function setAnchored(character, anchored)
-for _, part in ipairs(character:GetDescendants()) do
-if part:IsA("BasePart") then
-part.Anchored = anchored
-end
-end
-end
-DefenseTab:AddToggle({
-Name = "オート無敵",
-Default = false,
-Callback = function(state)
-local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-isAnchored = state
-setAnchored(character, isAnchored)
-if isAnchored then
-end
-end
-})
-LocalPlayer.CharacterAdded:Connect(function(character)
-character:WaitForChild("HumanoidRootPart")
-setAnchored(character, isAnchored)
-end)
+
 D_p = 0.000005
 DefenseTab:AddToggle({
 Name = "アンチ掴む",
