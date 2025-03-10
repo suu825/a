@@ -2664,8 +2664,8 @@ BlobmanTab:AddButton({
         blobman.PrimaryPart = blobman:FindFirstChild("HumanoidRootPart") or blobman:FindFirstChild("MainPart") or blobman:FindFirstChildWhichIsA("BasePart")
         end
         if blobman.PrimaryPart then
-        local positions = {Vector3.new(0, 10000000, 0), Vector3.new(0, 11000000, 0), Vector3.new(0, 12000000, 0), Vector3.new(0, 13000000, 0),
-        Vector3.new(0, 14000000, 0), Vector3.new(0, 15000000, 0), Vector3.new(0, 16000000, 0), Vector3.new(0, 17000000, 0), Vector3.new(0, 18000000, 0), Vector3.new(0, 19000000, 0), Vector3.new(0,20000000, 0)}
+        local positions = {Vector3.new(0, 10000000, 0), Vector3.new(0, -999999, 0), Vector3.new(0, 12000000, 0), Vector3.new(0, -13000000, 0),
+        Vector3.new(0, 18000000, 0), Vector3.new(0, -88000000, 0), Vector3.new(0, 6000000, 0), Vector3.new(0, -33000000, 0), Vector3.new(0, -110, 0), Vector3.new(0, 222000000, 0), Vector3.new(0,-20000000, 0), Vector3.new(0,-20000453500, 63535363), Vector3.new(5254579,5220000000, 0), Vector3.new(362323,-320000000, 846632), Vector3.new(534673,4520000000, 333333333), Vector3.new(0,-200362364000, 643242523), Vector3.new(5325336232,-26236320000, 0), Vector3.new(252325,-5, 2523523), Vector3.new(0,-200000, 0), Vector3.new(0,-2000, 63643435)}
         local index = 1
         while true do
         task. wait(S_U)
