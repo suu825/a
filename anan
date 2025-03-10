@@ -200,27 +200,7 @@ return objects
 end
  GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
  SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
-local ObjectGrabDistance = 25
-local auraCoroutine = nil
-local targetObjects = {"Part", "SoundPart", "BalloonModel", "BookManyPages", "BookNormal", "Airhorn", "HitboxBody", "Boombox", "Hitbox", "HitboxPart", "FactoryTable", "Pyramid", "FutureAngularDesk", "PlankMaker", "OvenMicrowaveWhite", "MeshPart", "OctagonBall", "FoodHotSauce", "TrussPart", "Chest", "Hoop", "Body", "BombMissile", "Wedge", "PaperPlane", "DiceBig", "MidiMakr", "BellSmall", "UnionOperation"}
-local function getTargetObjects()
-local objects = {}
-for _, descendant in ipairs(workspace:GetDescendants()) do
-if descendant:IsA("BasePart") and table.find(targetObjects, descendant.Name) then
-table.insert(objects, descendant)
-end
-end
-return objects
-end
- function grabObject(part, playerCFrame)
-if part:IsA("BasePart") then
-SetNetworkOwner:FireServer(part, playerCFrame)
-task.delay(20, function()
-if part and part.Parent then
-end
-end)
-end
-end
+
  Players = game:GetService("Players")
 local playerNames = {}
  Players = game:GetService("Players")
@@ -1054,7 +1034,6 @@ local freezeATab = Window:MakeTab({Name = "無敵突破", Icon =  "rbxassetid://
 local BlobmanTab = Window:MakeTab({Name = "ブロブマン掴む", Icon =  "rbxassetid://88840235976282", PremiumOnly = false})
 local ServerTab = Window:MakeTab({Name = "ラグサーバー", Icon = "rbxassetid://4483345998", PremiumOnly = false})
 local AuraTab = Window:MakeTab({Name = "オーラ", Icon =  "rbxassetid://117381520745599", PremiumOnly = false})
-local ObjectTab = Window:MakeTab({Name = "オブジェクトオーラ", Icon =  "rbxassetid://117381520745599", PremiumOnly = false})
 local arasuTab = Window:MakeTab({Name = "荒らす用", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
 local ESPTab = Window:MakeTab({Name = "ESP", Icon =  "rbxassetid://111725691127581", PremiumOnly = false})
 local FunTab = Window:MakeTab({Name = "人形", Icon =  "rbxassetid://73570431850302", PremiumOnly = false})
@@ -2740,41 +2719,7 @@ Callback = function(value)
 auraRadius = value
 end
 })
-ObjectTab:AddToggle({
-Name = "オブジェクトオーラ回転",
-Default = false,
-Save = false,
-Callback = function(enabled)
-auraActive = enabled
-if enabled then
-coroutine.wrap(processAura)()
-end
-end
-})
-ObjectTab:AddSlider({
-Name = "半径",
-Min = 1,
-Max = 450,
-Default = auraRadius,
-Color = Color3.fromRGB(255, 255, 255),
-Increment = 1,
-ValueName = "",
-Callback = function(value)
-ARadius = value
-end
-})
-ObjectTab:AddSlider({
-Name = "高さ",
-Min = 1,
-Max = 50,
-Default = auraHeight,
-Color = Color3.fromRGB(255, 255, 255),
-Increment = 1,
-ValueName = "",
-Callback = function(value)
-auraHeight = value
-end
-})
+
 AuraTab:AddToggle({
 Name = "掴むオーラ",
 Color = Color3.fromRGB(255, 255, 255),
@@ -8707,209 +8652,6 @@ end
 end
 end
 })
-function ObjectGrab()
-while true do
-local success, err = pcall(function()
-local character = Players.LocalPlayer.Character
-if character and character:FindFirstChild("HumanoidRootPart") then
-local humanoidRootPart = character.HumanoidRootPart
-local playerCFrame = humanoidRootPart.CFrame
-local objects = getTargetObjects()
-for _, obj in pairs(objects) do
-local distance = (obj.Position - humanoidRootPart.Position).Magnitude
-if distance <= ObjectGrabDistance then
-grabObject(obj, playerCFrame)
-end
-end
-end
-end)
-if not success then
-end
-wait(0)
-end
-end
-ObjectTab:AddToggle({
-Name = "オブジェクト掴むオーラ",
-Default = false,
-Save = false,
-Callback = function(enabled)
-if enabled then
-ObjectGrabCoroutine = coroutine.create(ObjectGrab)
-coroutine.resume(ObjectGrabCoroutine)
-elseif ObjectGrabCoroutine then
-coroutine.close(ObjectGrabCoroutine)
-ObjectGrabCoroutine = nil
-end
-end
-})
-DestroyLink = 25
-function Destroy(part)
-if part:IsA("BasePart") then
-local randomDirection = Vector3.new(
-math.random(0, 0) / 0,
-0,
-math.random(0, 0) / 0
-).Unit
-local force = Vector3.new(0, 500000000, 0)
-local velocity = Instance.new("BodyVelocity", part)
-velocity.Name = "KnockbackVelocity"
-velocity.Velocity = force
-velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-Debris:AddItem(velocity, 1)
-end
-end
-function Objectdestoy()
-while true do
-local success, err = pcall(function()
-local character = Players.LocalPlayer.Character
-if character and character:FindFirstChild("HumanoidRootPart") then
-local humanoidRootPart = character.HumanoidRootPart
-local playerCFrame = humanoidRootPart.CFrame
-local objects = getTargetObjects()
-for _, obj in pairs(objects) do
-local distance = (obj.Position - humanoidRootPart.Position).Magnitude
-if distance <= DestroyLink then
-grabObject(obj, playerCFrame)
-task.delay(0, function()
-Destroy(obj)
-end)
-end
-end
-end
-end)
-if not success then
-end
-wait(0)
-end
-end
-ObjectTab:AddToggle({
-Name = "オブジェクト削除オーラ",
-Default = false,
-Save = false,
-Callback = function(enabled)
-if enabled then
-ObjectdestoyCoroutine = coroutine.create(Objectdestoy)
-coroutine.resume(ObjectdestoyCoroutine)
-elseif ObjectdestoyCoroutine then
-coroutine.close(ObjectdestoyCoroutine)
-ObjectdestoyCoroutine = nil
-end
-end
-})
-maxHeight = 50
-dropDifference = 49
-rotatingObjects = {}
-RingAura = 10
-RingAuraHeight = 0
-function RotateObjects()
-player = game.Players.LocalPlayer
-character = player.Character or player.CharacterAdded:Wait()
-humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local angle = 0
-while true do
-local success, err = pcall(function()
-angle = angle + math.rad(3)
-for index, obj in pairs(rotatingObjects) do
-local offsetX = math.cos(angle + (index * 2 * math.pi / #rotatingObjects)) * RingAura
-local offsetZ = math.sin(angle + (index * 2 * math.pi / #rotatingObjects)) * RingAura
-local calculatedY = RingAuraHeight
-if calculatedY > maxHeight then
-calculatedY = maxHeight - dropDifference
-end
-local offset = Vector3.new(offsetX, calculatedY, offsetZ)
-obj.CFrame = humanoidRootPart.CFrame * CFrame.new(offset)
-end
-end)
-if not success then
-end
-wait()
-end
-end
-function ObjectAuraD()
-while true do
-local success, err = pcall(function()
-local character = Players.LocalPlayer.Character
-if character and character:FindFirstChild("HumanoidRootPart") then
-local humanoidRootPart = character.HumanoidRootPart
-local objects = getTargetObjects()
-for _, obj in pairs(objects) do
-local distance = (obj.Position - humanoidRootPart.Position).Magnitude
-if distance <= RingAura then
-HandleNoClip(obj)
-if not table.find(rotatingObjects, obj) then
-table.insert(rotatingObjects, obj)
-end
-end
-end
-end
-end)
-if not success then
-end
-wait()
-end
-end
-GravityToggleActive = false
-GravityToggle = ObjectTab:AddToggle({
-Name = "リングが上手く行かない時はこれつけて",
-Default = false,
-Callback = function(state)
-GravityToggleActive = state
-if GravityToggleActive then
-game.Workspace.Gravity = 0
-else
-game.Workspace.Gravity = 100
-end
-end
-})
-ObjectTab:AddToggle({
-Name = "(リング)ってやつオンにしてからしてね",
-Default = false,
-Save = false,
-Callback = function(enabled)
-if enabled then
-ObjectAuraDCoroutine = coroutine.create(ObjectAuraD)
-coroutine.resume(ObjectAuraDCoroutine)
-elseif ObjectAuraDCoroutine then
-coroutine.close(ObjectAuraDCoroutine)
-ObjectAuraDCoroutine = nil
-end
-end
-})
-ObjectTab:AddToggle({
-Name = "リング",
-Default = false,
-Callback = function(enabled)
-if enabled then
-coroutine.wrap(RotateObjects)()
-else
-rotatingObjects = {}
-end
-end
-})
-ObjectTab:AddSlider({
-Name = "半径",
-Min = 0,
-Max = 25,
-Default = 25,
-Color = Color3.fromRGB(255, 255, 255),
-Increment = 1,
-ValueName = "Studs",
-Callback = function(value)
-RingAura = value
-end
-})
-ObjectTab:AddSlider({
-Name = "高さ ",
-Min = -10,
-Max = 100,
-Default = 0,
-Color = Color3.fromRGB(255, 255, 255),
-Increment = 1,
-ValueName = "Studs",
-Callback = function(value)
-RingAuraHeight = value
-end
-})
 
  
 Players = game:GetService("Players")
@@ -9105,193 +8847,181 @@ end
 
 
 
--- ローカルプレイヤーとキャラクターの取得
+
+
 local localPlayer = game.Players.LocalPlayer
 local playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 
--- キャラクターが追加されたときに新しいキャラクターをセットするイベント
 localPlayer.CharacterAdded:Connect(function(character)
     playerCharacter = character
 end)
 
--- プレイヤーがスポーンさせたおもちゃを格納するフォルダを取得
 local toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
- autoEnabled = false  -- 自動モードの有効状態
-local targetPlayerName = ""  -- ターゲットプレイヤーの名前
 
--- ランダムなベクトルを生成する関数
- function getRandomVector(min, max)
+autoEnabled = false  
+local targetPlayerName = ""  
+local selectedObjectName = "BallSnowball"
+
+function getRandomVector(min, max)
     return Vector3.new(
-        math.random(min, max),  -- x座標のランダム値
-        math.random(min, max),  -- y座標のランダム値
-        math.random(min, max)   -- z座標のランダム値
+        math.random(min, max),  
+        math.random(min, max),  
+        math.random(min, max)   
     )
 end
 
--- BallSnowballをスポーンさせる関数
- function spawnSnowball()
+function spawnObject(objectName)
     task.spawn(function()
-        local rotation = Vector3.new(0, 999, 100)  -- スポーン時の回転設定
-        local success, err = pcall(function()
-            game:GetService("ReplicatedStorage").MenuToys.SpawnToyRemoteFunction:InvokeServer("BallSnowball", playerCharacter.Head.CFrame, rotation)
+        local rotation = Vector3.new(0, 999, 100)  
+        pcall(function()
+            game:GetService("ReplicatedStorage").MenuToys.SpawnToyRemoteFunction:InvokeServer(objectName, playerCharacter.Head.CFrame, rotation)
         end)
-        if success then
-            
-        else
-             end
     end)
 end
 
--- スポーンされたBallSnowballを検索する関数
- function findSnowball()
-    if not toysFolder then  -- toysFolderが未定義の場合は再取得する
+function findSpawnedObject(objectName)
+    if not toysFolder then  
         toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
     end
 
     if toysFolder then
-        for _, item in pairs(toysFolder:GetChildren()) do  -- toysFolder内のアイテムをすべて確認する
-            if item.Name == "BallSnowball" then  -- アイテムがBallSnowballであるか確認する
-                return item  -- 見つかった場合、アイテムを返
+        for _, item in pairs(toysFolder:GetChildren()) do  
+            if item.Name == objectName then  
+                return item  
             end
         end
     end
-
-    return nil  -- 見つからない場合はnilを返す
+    return nil  
 end
 
-
--- 英語名と日本語名のマッピング
 local bodyPartsMap = {
     Head = "頭",
     Torso = "胴体",
-   
 }
-
 local bodyParts = {}
 for englishName, japaneseName in pairs(bodyPartsMap) do
-    table.insert(bodyParts, japaneseName)  -- 日本語名をリストに追加
+    table.insert(bodyParts, japaneseName)
 end
+local targetBodyPartName = ""
 
-local targetBodyPartName = ""  
-
--- ドロップダウンメニューの作成
-
-
--- ターゲットプレイヤーにテレポートして物体を荒ぶらせる関数（更新版）
 function teleportAndShake(item, targetPlayer)
     if item and targetPlayer and targetPlayer.Character then 
-        local targetPart = targetPlayer.Character:FindFirstChild(targetBodyPartName)  -- 選択された部位を取得
-        
-        if targetPart then  -- 部位が見つかった場合のみ処理
-            -- ターゲットにテレポートする位置を設定
+        local targetPart = targetPlayer.Character:FindFirstChild(targetBodyPartName)
+        if targetPart then  
             local targetPos = targetPart.CFrame  
-            item.CFrame = targetPos  -- アイテムの位置を更新
-            
-            -- ランダムな速度と回転を設定して荒ぶらせる
+            item.CFrame = targetPos  
             item.AssemblyLinearVelocity = getRandomVector(-111, 120)
             item.AssemblyAngularVelocity = getRandomVector(-500, 500)
         end  
-    end  
+    end
 end
 
--- 自動的にテレポートして荒ぶらせる処理を行う関数 
- function autoTeleportAndShake()
-    while autoEnabled do  -- 自動が有効な限り繰り返す 
+function autoTeleportAndShake()
+    while autoEnabled do  
         pcall(function()  
-            local snowball = findSnowball()  -- Snowballを見つける 
-            if not snowball then  
-                spawnSnowball()  -- Snowballが見つからない場合は新しくスポーンさせる 
-                wait()  -- スポーン待ち 
+            local obj = findSpawnedObject(selectedObjectName)  
+            if not obj then  
+                spawnObject(selectedObjectName)  
+                wait()  
             else 
-                local targetPlayer = game.Players:FindFirstChild(targetPlayerName)  -- ターゲットプレイヤーを取得
+                local targetPlayer = game.Players:FindFirstChild(targetPlayerName)
                 if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                    for _, child in pairs(snowball:GetChildren()) do  
-                        if child:IsA("BasePart") then   -- 子要素がBasePartである場合のみ処理 
+                    for _, child in pairs(obj:GetChildren()) do  
+                        if child:IsA("BasePart") then   
                             teleportAndShake(child, targetPlayer)  
                         end  
                     end  
                 end
-            end  
+            end
         end)  
-        wait() -- テレポート間隔 
-    end  
+        wait(0)  
+    end
 end
 
--- 自動テレポートと荒ぶり機能のトグル処理 
-function toggleAutoTeleportAndShake(enabled) 
+function toggleAutoTeleportAndShake(enabled)
     autoEnabled = enabled  
     if enabled then 
-        
-        task.spawn(autoTeleportAndShake) 
-    else 
-        
-    end  
-end 
+        task.spawn(autoTeleportAndShake)
 
--- プレイヤーリストを取得する関数
- Players = game:GetService("Players")
+    
+    end
+end
+
+local Players = game:GetService("Players")
 local playerNames = {}
 
- function update1()
+function update1()
     playerNames = {}
     for _, player in ipairs(Players:GetPlayers()) do
         table.insert(playerNames, player.Name)
     end
 end
 
--- プレイヤーリストの更新
 update1()
 
--- UIタブ作成
-
--- ドロップダウンメニューの作成
 local playerDropdown = freezeATab:AddDropdown({
     Name = "無敵突破したいプレイヤーを選択",
     Options = playerNames,
     Default = nil,
     Callback = function(selectedPlayerName)
-        targetPlayerName = selectedPlayerName  -- 選択されたプレイヤー名を更新
+        targetPlayerName = selectedPlayerName  
     end
 })
 
--- プレイヤー追加時にリストを更新
 Players.PlayerAdded:Connect(function()
-    update1()  -- プレイヤーリストの更新
-    playerDropdown:Refresh(playerNames, true)  -- ドロップダウンリストを更新
+    update1()  
+    playerDropdown:Refresh(playerNames, true)  
 end)
 
--- プレイヤー削除時にリストを更新
 Players.PlayerRemoving:Connect(function()
-    update1()  -- プレイヤーリストの更新
-    playerDropdown:Refresh(playerNames, true)  -- ドロップダウンリストを更新
+    update1()  
+    playerDropdown:Refresh(playerNames, true)  
 end)
 
--- 自動無敵突破機能のトグル
-freezeATab:AddToggle({   
+-- 既存のコードの続き...
+
+-- 無敵突破トグルで両方の処理を一度に制御
+freezeATab:AddToggle({
     Name = "無敵突破",   
     Default = false,   
-    Callback = function(enabled)    
-        toggleAutoTeleportAndShake(enabled)  
-    end   
-}) 
+    Callback = function(enabled)   
+        if enabled then
+            -- 無敵突破を有効化
+            autoEnabled = true  -- 自動処理を有効化
+            task.spawn(autoTeleportAndShake)  -- 自動でテレポートとシェイクを開始
+        else
+            -- 無敵突破を無効化
+            autoEnabled = false  -- 自動処理を無効化
+        end
+    end
+})
+
 
 local partDropdown = freezeATab:AddDropdown({
     Name = "当てる部位",
     Options = bodyParts,
     Default = nil,
     Callback = function(selectedBodyPartName)
-        -- 選択された日本語名に対応する英語名を取得
         for englishName, japaneseName in pairs(bodyPartsMap) do
             if japaneseName == selectedBodyPartName then
-                targetBodyPartName = englishName  -- 英語名を設定
+                targetBodyPartName = englishName  
                 break
             end
         end
     end
 })
 
--- UI初期化    
-OrionLib:Init()
+local objectOptions = {"BallSnowball", "SprayCanWD"}  
+freezeATab:AddDropdown({
+    Name = "当てるオブジェクトを選ぶ",
+    Options = objectOptions,
+    Default = "BallSnowball",
+    Callback = function(selectedObject)
+        selectedObjectName = selectedObject
+    end
+})
+
+
 
 OrionLib:MakeNotification({Name = "a", Content = "a", Image = "rbxassetid://4483345998", Time = 5})
 OrionLib:Init()
