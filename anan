@@ -9,9 +9,9 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/suu825/a/refs/heads/m
  SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
 Workspace = game:GetService("Workspace")
 Players = game:GetService("Players")
-local flingCoroutine = nil
+ flingCoroutine = nil
 function processPart(part)
-local character = Players.LocalPlayer.Character
+ character = Players.LocalPlayer.Character
 if not toggleBringEnabled or not character or not character:FindFirstChild("Head") or not part:IsA("BasePart") then
 return
 end
@@ -23,7 +23,7 @@ part.Name == "Right Leg," or part.Name == "Left Leg" or part.Name == "HumanoidRo
 return
 end
 if not part:FindFirstChildOfClass("BodyPosition") then
-local ForceInstance = Instance.new("BodyPosition")
+ ForceInstance = Instance.new("BodyPosition")
 ForceInstance.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
 ForceInstance.Position = Vector3.new(0, R_raaa, 0)
 ForceInstance.P = 6000000000000
@@ -38,7 +38,7 @@ end
 end
 function cleanupBringReduction()
 for _, part in pairs(Workspace:GetDescendants()) do
-local existingForce = part:FindFirstChildOfClass("BodyPosition")
+ existingForce = part:FindFirstChildOfClass("BodyPosition")
 if existingForce then
 existingForce:Destroy()
 end
@@ -54,8 +54,8 @@ end
 function deleteSpawnedInToys()
 for _, player in ipairs(Players:GetPlayers()) do
 if player ~= Players.LocalPlayer then
-local toyName = player.Name .. "SpawnedInToys"
-local toys = Workspace:FindFirstChild(toyName)
+ toyName = player.Name .. "SpawnedInToys"
+ toys = Workspace:FindFirstChild(toyName)
 if toys then
 toys:Destroy()
 end
@@ -66,7 +66,7 @@ flingPower = 200000
 function flingAllParts()
 for _, part in pairs(Workspace:GetDescendants()) do
 if part:IsA("BasePart") and not part.Anchored then
-local force = Instance.new("BodyAngularVelocity")
+ force = Instance.new("BodyAngularVelocity")
 force.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
 force.AngularVelocity = Vector3.new(
 math.random(-flingPower, flingPower),
@@ -190,7 +190,7 @@ processedObjects[part] = true
 end
 end
 local function getTargetObjects()
-local objects = {}
+ objects = {}
 for _, descendant in ipairs(Workspace:GetDescendants()) do
 if descendant:IsA("BasePart") and table.find(targetObjects, descendant.Name) and not processedObjects[descendant] then
 table.insert(objects, descendant)
@@ -1892,6 +1892,21 @@ task.wait()
 end
 end
 DefenseTab:AddToggle({
+    Name ="アンチラグ",
+    Default = false,
+    Callback = function(Value)
+        local grabEvents = ReplicatedStorage:FindFirstChild("GrabEvents"); if not grabEvents then
+         return;
+        end
+        if Value then
+            grabEvents:FindFirstChild("CreateGrabLine"):Destroy();
+        elseif not grabEvents:FindFirstChild("CreateGrabLine") then
+            Instance.new("RemoteEvent", grabEvents).Name =
+            "CreateGrabLine";
+        end
+    end
+})
+DefenseTab:AddToggle({
 Name = "アンチキック",
 Default = false,
 Callback = function(value)
@@ -2084,30 +2099,7 @@ end
 end
 end
 })
-DefenseTab:AddToggle({
-Name = "アンチラグ",
-Color = Color3.fromRGB(255, 255, 255),
-Default = false,
-Save = false,
-Flag = "antilag",
-Callback = function(antilaggg)
-local function anti_lag ()
-if antilaggg then
-w.PlotItems.Plot1.Parent = RS
-w.PlotItems.Plot2.Parent = RS
-w.PlotItems.Plot3.Parent = RS
-w.PlotItems.Plot4.Parent = RS
-w.PlotItems.Plot5.Parent = RS
-else
-RS.Plot1.Parent = w.PlotItems
-RS.Plot2.Parent = w.PlotItems
-RS.Plot3.Parent = w.PlotItems
-RS.Plot4.Parent = w.PlotItems
-RS.Plot5.Parent = w.PlotItems
-end
-end
-end
-})
+
 DefenseTab:AddToggle({
 Name = "自分のこと掴んだ相手が上に上がる",
 Color = Color3.fromRGB(255, 255, 255),
@@ -2271,7 +2263,7 @@ D_dm = Value
 end
 })
 local blobalter = G_e
-local function blobGrabPlayer(player, blobman)
+local function blobGrab(player, blobman)
 if blobalter == 1 then
 if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 local args = {
@@ -2362,7 +2354,7 @@ blobman1 = BlobmanTab:AddToggle({
                         while wait() do
                             if TargetPlayer and blobman then 
                                 -- 選択されたプレイヤーを掴む処理 
-                                blobGrabPlayer(TargetPlayer, blobman)
+                                blobGrab(TargetPlayer, blobman)
                                 wait() -- 適宜間隔を調整可能 
                             end 
                         end 
@@ -2380,6 +2372,9 @@ blobman1 = BlobmanTab:AddToggle({
         end 
     end 
 })
+
+
+
 
 friendModeEnabled = false
 blobmanG_e = BlobmanTab:AddToggle({
@@ -2415,7 +2410,7 @@ while wait() do
 for i, v in pairs(Players:GetChildren()) do
 if blobman and v ~= localPlayer then
 if not friendModeEnabled or (friendModeEnabled and not localPlayer:IsFriendsWith(v.UserId)) then
-blobGrabPlayer(v, blobman)
+blobGrab(v, blobman)
 end
 wait()
 end
@@ -2470,7 +2465,7 @@ while wait() do
 for i, v in pairs(Players:GetChildren()) do
 if blobman and v ~= localPlayer then
 if not friendModeEnabled or (friendModeEnabled and not localPlayer:IsFriendsWith(v.UserId)) then
-blobGrabPlayer(v, blobman)
+blobGrab(v, blobman)
 end
 end
 end
@@ -2489,8 +2484,160 @@ end
 end
 })
 
+local Players = game:GetService("Players"); local Debris =
+game:GetService("Debris"); local ReplicatedStorage = game:GetService("ReplicatedStorage"); local SetNetworkOwner =
+ReplicatedStorage:WaitForChild("GrabEvents"):WaitForChild("SetNetworkOwner"); local DestroyGrabLine =
+ReplicatedStorage:WaitForChild("GrabEvents"):WaitForChild("DestroyGrabLine"); local UserInputService = game
+:GetService("UserInputService"); local TweenService = game:GetService("TweenService"); local RunService = game
+:GetService("RunService"); local localPlayer = Players.LocalPlayer; local auraCoroutine = nil; local controlledPlayers = {}; local isAuraEnabled = false; local auraRadius = 40; local flingUpwardForce = 200; local anchorDuration = 0; local flingDelay = 0; local function positionPlayersInTrain(
+humanoidRootPart)
+local currentOffset = Vector3.new(0, 0, -5); for _, player in ipairs(controlledPlayers) do
+    if (player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then
+        local playerTorso = player.Character.HumanoidRootPart; SetNetworkOwner:FireServer(playerTorso,
+            player.Character.HumanoidRootPart.CFrame); local targetCFrame = humanoidRootPart.CFrame *
+            CFrame.new(currentOffset); local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Linear,
+            Enum.EasingDirection.Out, 0, false, 0); local tween = TweenService:Create(playerTorso, tweenInfo,
+            { CFrame = targetCFrame }); tween:Play(); currentOffset = currentOffset + Vector3.new(0, 0, -5);
+    end
+end
+end
+local blobalter = 1; local blobmanCoroutine = nil; local blobman = nil; local isBlobmanControlEnabled = false; local grabInterval = 3; local function isDescendantOf(
+child, parent)
+while child ~= nil do
+    if (child == parent) then return true; end
+    child = child.Parent;
+end
+return false;
+end
+local function blobGrabPlayer(player, blobman)
+if (player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then
+    local humanoidRootPart = player.Character.HumanoidRootPart; local detectorName = ((blobalter == 1) and "LeftDetector") or
+        "RightDetector"; local detector = blobman:FindFirstChild(detectorName); if detector then
+        local line = Instance.new("Part"); line.Size = Vector3.new(0.1, 0.1,
+            (blobman.PrimaryPart.Position - humanoidRootPart.Position).Magnitude); line.CFrame = CFrame.new(
+            blobman.PrimaryPart.Position, humanoidRootPart.Position) * CFrame.new(0, 0, -line.Size.Z / 2); line.Anchored = true; line.CanCollide = false; line.Transparency = 0099; line.BrickColor =
+            BrickColor.new("Neon cyan"); line.Material = Enum.Material.Neon; line.Parent = workspace; local hitbox =
+            Instance.new("Part"); hitbox.Size = Vector3.new(1, 2, 1); hitbox.CFrame = humanoidRootPart.CFrame; hitbox.Anchored = true; hitbox.CanCollide = false; hitbox.Transparency = 999; hitbox.BrickColor =
+            BrickColor.new("Neon green"); hitbox.Material = Enum.Material.Neon; hitbox.Parent = workspace; local args = {
+            [1] = detector, [2] = humanoidRootPart, [3] = detector:FindFirstChild(detectorName .. "Weld") }; blobman
+            :WaitForChild("BlobmanSeatAndOwnerScript"):WaitForChild("CreatureGrab"):FireServer(unpack(args)); blobalter = 3 -
+            blobalter; wait(0); line:Destroy(); hitbox:Destroy();
+    else
+        warn("Detector not found:", detectorName);
+    end
+end
+end
+local function movePlayerUpward(player)
+if (player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then
+    local humanoidRootPart = player.Character.HumanoidRootPart; local upwardForce = 50; local bodyVelocity =
+        Instance.new("BodyVelocity"); bodyVelocity.MaxForce = Vector3.new(0, math.huge, 0); bodyVelocity.Velocity =
+        Vector3.new(0, upwardForce, 0); bodyVelocity.Parent = humanoidRootPart; game:GetService("Debris")
+        :AddItem(
+            bodyVelocity, 0.3);
+end
+end
 
-
+BlobmanTab:AddToggle({
+    Name = "滑るALLv2",
+    Default = false,
+    Save = false,
+    Callback = function(
+        enabled)
+        isAuraEnabled = enabled; isBlobmanControlEnabled = enabled; if enabled then
+            auraCoroutine = coroutine.create(function()
+                while isAuraEnabled do
+                    local success, err = pcall(function()
+                        local character = localPlayer.Character; if (character and character:FindFirstChild("Head") and character:FindFirstChild("HumanoidRootPart")) then
+                            local head = character.Head; local humanoidRootPart = character.HumanoidRootPart; controlledPlayers = {}; for _, player in pairs(Players:GetPlayers()) do
+                                coroutine.wrap(function()
+                                    if ((player ~= localPlayer) and player.Character) then
+                                        local playerCharacter = player.Character; local playerTorso =
+                                            playerCharacter
+                                            :FindFirstChild("Torso") or
+                                            playerCharacter:FindFirstChild("HumanoidRootPart"); if playerTorso then
+                                            local distance = (playerTorso.Position - humanoidRootPart.Position)
+                                                .Magnitude; if (distance <= auraRadius) then
+                                                table.insert(controlledPlayers, player); playerTorso.Anchored = true; SetNetworkOwner
+                                                    :FireServer(playerTorso,
+                                                        playerCharacter.HumanoidRootPart.CFrame); task
+                                                    .wait(flingDelay); if (playerTorso and playerTorso.Parent) then
+                                                    local flingUpwardVelocity = Instance.new("BodyVelocity",
+                                                        playerTorso); flingUpwardVelocity.Name =
+                                                    "FlingUpward"; flingUpwardVelocity.Velocity = Vector3.new(0,
+                                                        flingUpwardForce, 0); flingUpwardVelocity.MaxForce =
+                                                    Vector3.new(
+                                                        0, math.huge, 0); Debris:AddItem(flingUpwardVelocity, 0);
+                                                end
+                                                task.delay(anchorDuration,
+                                                    function()
+                                                        if (playerTorso and playerTorso.Parent) then
+                                                            playerTorso.Anchored = false; DestroyGrabLine
+                                                                :FireServer(
+                                                                    playerTorso);
+                                                        end
+                                                    end);
+                                            end
+                                        end
+                                    end
+                                end)();
+                            end
+                        end
+                    end); if not success then warn("Error in Aura: " .. tostring(err)); end
+                    wait(999)
+                end
+            end); 
+            coroutine.resume(auraCoroutine); blobmanCoroutine = coroutine.create(function()
+                local foundBlobman = false; for i, v in pairs(workspace:GetDescendants()) do
+                    if (v.Name == "CreatureBlobman") then
+                        if (v:FindFirstChild("VehicleSeat") and v.VehicleSeat:FindFirstChild("SeatWeld") and isDescendantOf(v.VehicleSeat.SeatWeld.Part1, localPlayer.Character)) then
+                            blobman = v; foundBlobman = true; break;
+                        end
+                    end
+                end
+                if not foundBlobman then
+                    
+                     invisToggle:Set(false); blobman = nil; coroutine.close(
+                        blobmanCoroutine); blobmanCoroutine = nil; return;
+                end
+                while isBlobmanControlEnabled do
+                    if (blobman and blobman:FindFirstChild("BlackHoleKick")) then
+                        local spawnLocation = workspace:FindFirstChild("SpawnLocation") or
+                            workspace:FindFirstDescendant("SpawnLocation"); if spawnLocation then
+                            local blackHoleKick = blobman:FindFirstChild("BlackHoleKick"); local circle =
+                            Instance.new(
+                                "Part", workspace); circle.Shape = "Cylinder"; circle.Size = Vector3.new(1, 0.1,
+                                1); circle.CFrame =
+                                spawnLocation.CFrame * CFrame.Angles(math.rad(90), 0, 0); circle.Anchored = true; circle.CanCollide = false; circle.Transparency = 0; circle.BrickColor =
+                                BrickColor.new("Dark"); circle.Material = Enum.Material.Neon; circle.Name =
+                            "BlackHoleKickVisual"; local tween = TweenService:Create(circle,
+                                TweenInfo.new(0, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+                                { Size = Vector3.new(8, 0.1, 8), Transparency = 0 }); tween:Play(); wait(0); circle
+                                :Destroy();
+                        end
+                    end
+                    for i, v in pairs(Players:GetChildren()) do
+                        if (blobman and (v ~= localPlayer)) then
+                            blobGrabPlayer(
+                                v, blobman);
+                        end
+                    end
+                    wait(grabInterval); for i, v in pairs(Players:GetChildren()) do
+                        if (v ~= localPlayer) then
+                            movePlayerUpward(v);
+                        end
+                    end
+                end
+            end); coroutine.resume(blobmanCoroutine);
+        else
+            if auraCoroutine then
+                coroutine.close(auraCoroutine); auraCoroutine = nil;
+            end
+            controlledPlayers = {}; if blobmanCoroutine then
+                coroutine.close(blobmanCoroutine); blobmanCoroutine = nil; blobman = nil;
+            end
+        end
+    end
+})
 
 
 
@@ -8847,20 +8994,94 @@ end
 
 
 
+-- 必要なサービス
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Debris = game:GetService("Debris")
+
+-- イベントの取得
+local GrabEvents = ReplicatedStorage:WaitForChild("GrabEvents")
+local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
+
+-- オーラの設定
+local auraRadius = 21
+local auraCoroutine = nil
+local targetObjects = {"SprayaaCanWD", "SquarePyramid", "Hitbox", "Main", "Part", "SoundPart", "StickyRemoverPart", "Straw", "Wedge", "BallSnowball", "SnowRagdollPart", "Ball80"}
+
+
+-- 対象のオブジェクトを取得する関数
+local function getTargetObjects()
+local objects = {}
+for _, descendant in ipairs(workspace:GetDescendants()) do
+if descendant:IsA("BasePart") and table.find(targetObjects, descendant.Name) then
+table.insert(objects, descendant)
+end
+end
+return objects
+end
+
+-- オブジェクトを掴む機能
+local function grabObject(part, playerCFrame)
+if part:IsA("BasePart") then
+-- SetNetworkOwnerを使って物理的に掴む
+SetNetworkOwner:FireServer(part, playerCFrame)
+
+-- 掴む状態を1秒後に解除
+task.delay(99999999999999999999, function()
+if part and part.Parent then
+-- 掴み解除後の処理を追加可能
+end
+end)
+end
+
+end
+
+
+local function processAura()
+while true do
+local success, err = pcall(function()
+local character = Players.LocalPlayer.Character
+if character and character:FindFirstChild("HumanoidRootPart") then
+local humanoidRootPart = character.HumanoidRootPart
+local playerCFrame = humanoidRootPart.CFrame
+
+local objects = getTargetObjects()
+for _, obj in pairs(objects) do
+local distance = (obj.Position - humanoidRootPart.Position).Magnitude
+if distance <= auraRadius then
+grabObject(obj, playerCFrame)
+
+task.delay(6, function()
+
+end)
+end
+end
+end
+end)
+
+if not success then
+
+end
+
+wait(0)
+
+end
+
+end
 
 
 local localPlayer = game.Players.LocalPlayer
-local playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+ playerCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 
 localPlayer.CharacterAdded:Connect(function(character)
     playerCharacter = character
 end)
 
-local toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
+ toysFolder = workspace:FindFirstChild(localPlayer.Name .. "SpawnedInToys")
 
 autoEnabled = false  
-local targetPlayerName = ""  
-local selectedObjectName = "BallSnowball"
+ targetPlayerName = ""  
+ selectedObjectName = "BallSnowball"
 
 function getRandomVector(min, max)
     return Vector3.new(
@@ -8894,19 +9115,12 @@ function findSpawnedObject(objectName)
     return nil  
 end
 
-local bodyPartsMap = {
-    Head = "頭",
-    Torso = "胴体",
-}
-local bodyParts = {}
-for englishName, japaneseName in pairs(bodyPartsMap) do
-    table.insert(bodyParts, japaneseName)
-end
-local targetBodyPartName = ""
+ 
+ targetBodyPartName = ""
 
 function teleportAndShake(item, targetPlayer)
     if item and targetPlayer and targetPlayer.Character then 
-        local targetPart = targetPlayer.Character:FindFirstChild(targetBodyPartName)
+        local targetPart = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
         if targetPart then  
             local targetPos = targetPart.CFrame  
             item.CFrame = targetPos  
@@ -8947,8 +9161,8 @@ function toggleAutoTeleportAndShake(enabled)
     end
 end
 
-local Players = game:GetService("Players")
-local playerNames = {}
+ Players = game:GetService("Players")
+ playerNames = {}
 
 function update1()
     playerNames = {}
@@ -8987,31 +9201,30 @@ freezeATab:AddToggle({
     Callback = function(enabled)   
         if enabled then
             -- 無敵突破を有効化
-            autoEnabled = true  -- 自動処理を有効化
-            task.spawn(autoTeleportAndShake)  -- 自動でテレポートとシェイクを開始
+            toggleAutoTeleportAndShake(true)
+
+            -- 無敵突破が機能しない時のオーラ処理も同時に開始
+            if not auraCoroutine then
+                auraCoroutine = coroutine.create(processAura)
+                coroutine.resume(auraCoroutine)
+            end
         else
             -- 無敵突破を無効化
-            autoEnabled = false  -- 自動処理を無効化
-        end
-    end
-})
+            toggleAutoTeleportAndShake(false)
 
-
-local partDropdown = freezeATab:AddDropdown({
-    Name = "当てる部位",
-    Options = bodyParts,
-    Default = nil,
-    Callback = function(selectedBodyPartName)
-        for englishName, japaneseName in pairs(bodyPartsMap) do
-            if japaneseName == selectedBodyPartName then
-                targetBodyPartName = englishName  
-                break
+            -- 無敵突破が機能しない時のオーラ処理を停止
+            if auraCoroutine then
+                coroutine.close(auraCoroutine)
+                auraCoroutine = nil
             end
         end
     end
 })
 
-local objectOptions = {"BallSnowball", "SprayCanWD"}  
+
+
+
+ objectOptions = {"BallSnowball", "SprayCanWD"}  
 freezeATab:AddDropdown({
     Name = "当てるオブジェクトを選ぶ",
     Options = objectOptions,
@@ -9020,7 +9233,6 @@ freezeATab:AddDropdown({
         selectedObjectName = selectedObject
     end
 })
-
 
 
 OrionLib:MakeNotification({Name = "a", Content = "a", Image = "rbxassetid://4483345998", Time = 5})
