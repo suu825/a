@@ -3438,12 +3438,39 @@ end
 end
 end)
 
+
 ScriptTab:AddButton({
-Name = "ALL？",
+Name = "無敵",
 Callback = function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/cooldawg123/FTAP/refs/heads/main/crashing.lua",true))()
+
+loadstring(game:HttpGet("https://pastebin.com/raw/KNHTCvHp"))()
+
 end
 })
+ScriptTab:AddButton({
+Name = "ブロブマン無効",
+Callback = function()
+
+--ブロブマン無効
+
+loadstring(game:HttpGet("https://pastebin.com/raw/eL4A3EpH"))()
+
+--ブロブマン無効V2
+loadstring(game:HttpGet("https://pastebin.com/raw/zcUv1qgU"))()
+
+end
+})
+ScriptTab:AddButton({
+Name = "座標v2",
+Callback = function()
+
+--座標
+loadstring(game:HttpGet("https://pastebin.com/raw/wizzc6E8"))()
+
+
+end
+})
+
 ScriptTab:AddButton({
 Name = "Ghostハブ",
 Callback = function()
