@@ -1224,7 +1224,7 @@ Callback = function()
 local startTime = tick()
 local isLooping = true
 while isLooping do
-for i = 1, 2000000 do
+for i = 1, aa_a do
 game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
 workspace:FindFirstChildOfClass("Part"),
 CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0))
@@ -1237,6 +1237,20 @@ end
 end
 end
 })
+
+ServerTab:AddSlider({
+Name = " クラッシュv2、ライン量",
+Min = 1,
+Max = 10000000,
+Color = Color3.fromRGB(255, 255, 255),
+ValueName = ".",
+Increment = 100000,
+Default = 1 ,
+Callback = function(value)
+aa_a = value
+end
+})
+
 ServerTab:AddButton({
 Name = "弱いラグサーバー",
 Callback = function()
