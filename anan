@@ -1224,7 +1224,7 @@ Callback = function()
 local startTime = tick()
 local isLooping = true
 while isLooping do
-for i = 1, 500000 do
+for i = 1, 2000000 do
 game:GetService("ReplicatedStorage").GrabEvents.CreateGrabLine:FireServer(
 workspace:FindFirstChildOfClass("Part"),
 CFrame.new(math.random(-0, 0), math.random(-0, 0), math.random(-0, 0))
