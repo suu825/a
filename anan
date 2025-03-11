@@ -2639,7 +2639,7 @@ BlobmanTab:AddToggle({
                             end
                         end
                     end); if not success then warn("Error in Aura: " .. tostring(err)); end
-                    wait(999)
+                    wait(2)
                 end
             end); 
             coroutine.resume(auraCoroutine); blobmanCoroutine = coroutine.create(function()
@@ -2673,8 +2673,8 @@ BlobmanTab:AddToggle({
                     end
                     for i, v in pairs(Players:GetChildren()) do
                         if (blobman and (v ~= localPlayer)) then
-                            blobGrabPlayer(
-                                v, blobman);
+                                    if not _G.friendModeEnabled or (_G.friendModeEnabled and not localPlayer:IsFriendsWith(v.UserId) and not _G.WhitelistedPlayers[v.Name]) then
+                            blobGrabPlayer(v, blobman);
                         end
                     end
                     wait(grabInterval); for i, v in pairs(Players:GetChildren()) do
@@ -2682,14 +2682,20 @@ BlobmanTab:AddToggle({
                             movePlayerUpward(v);
                         end
                     end
+                    end
                 end
-            end); coroutine.resume(blobmanCoroutine);
+            end)
+             coroutine.resume(blobmanCoroutine)
         else
             if auraCoroutine then
-                coroutine.close(auraCoroutine); auraCoroutine = nil;
+                coroutine.close(auraCoroutine); 
+                auraCoroutine = nil;
             end
-            controlledPlayers = {}; if blobmanCoroutine then
-                coroutine.close(blobmanCoroutine); blobmanCoroutine = nil; blobman = nil;
+            controlledPlayers = {};
+             if blobmanCoroutine then
+                coroutine.close(blobmanCoroutine);
+                 blobmanCoroutine = nil; 
+                 blobman = nil;
             end
         end
     end
